@@ -3,23 +3,28 @@ import "./App.css";
 import axios from "axios";
 import dayjs from "dayjs";
 
+interface LocationData {
+  depth_1: string;
+  depth_2: string;
+  depth_3: string;
+}
+
+interface ApiForm {
+  category: string;
+}
+
 function App() {
   // 위도 경도 설정
   const locationRef = useRef({ latitude: 0, longitude: 0 });
 
   useEffect(() => {
-    const watchId = navigator.geolocation.getCurrentPosition((position) => {
+    navigator.geolocation.getCurrentPosition((position) => {
       locationRef.current.latitude = position.coords.latitude;
       locationRef.current.longitude = position.coords.longitude;
 
       // 위치가 업데이트 될 때마다 주소를 갱신
       getAddress();
     });
-
-    // 컴포넌트 언마운트 시 위치 추적 중지
-    return () => {
-      navigator.geolocation.clearWatch(watchId);
-    };
   }, []);
 
   // 주소로 받기
@@ -30,8 +35,7 @@ function App() {
     depth_3: "",
   });
 
-
-  const KakaoKey = import.meta.env.VITE_KAKAO_KEY
+  const KakaoKey = import.meta.env.VITE_KAKAO_KEY;
   const getAddress = async () => {
     await axios
       .get(
@@ -71,13 +75,13 @@ function App() {
 
         // Step 1: depth_3이 일치하는 항목 필터링
         let filtered = locationData.filter(
-          (element: any) => element.depth_3 === address.depth_3
+          (element: LocationData) => element.depth_3 === address.depth_3
         );
 
         // Step 2: depth_2가 일치하는 항목이 있으면 필터링
         if (filtered.length > 1) {
           const filteredByDepth2 = filtered.filter(
-            (element: any) => element.depth_2 === address.depth_2
+            (element: LocationData) => element.depth_2 === address.depth_2
           );
           if (filteredByDepth2.length > 0) {
             filtered = filteredByDepth2;
@@ -87,7 +91,7 @@ function App() {
         // Step 3: depth_1까지 일치하는 항목이 있으면 필터링
         if (filtered.length > 1) {
           const filteredByDepth1 = filtered.filter(
-            (element: any) => element.depth_1 === address.depth_1
+            (element: LocationData) => element.depth_1 === address.depth_1
           );
           if (filteredByDepth1.length > 0) {
             filtered = filteredByDepth1;
@@ -118,19 +122,21 @@ function App() {
       .get(
         `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${
           import.meta.env.VITE_PUBLIC_API_KEY
-        }&numOfRows=10&pageNo=1&dataType=JSON&base_date=${date}&base_time=${"1600"}&nx=${
+        }&numOfRows=10&pageNo=1&dataType=JSON&base_date=${date}&base_time=${time}&nx=${
           xy.x
         }&ny=${xy.y}`
       )
       .then((res) => {
         const data = res.data.response.body.items.item;
         const temperature = `${
-          data.find((item) => item.category == "T1H").obsrValue
+          data.find((item: ApiForm) => item.category == "T1H").obsrValue
         }`;
         const humidity = `${
-          data.find((item) => item.category == "REH").obsrValue
+          data.find((item: ApiForm) => item.category == "REH").obsrValue
         }`;
-        const wind = `${data.find((item) => item.category == "WSD").obsrValue}`;
+        const wind = `${
+          data.find((item: ApiForm) => item.category == "WSD").obsrValue
+        }`;
         const nowWeather = {
           temperature,
           humidity,
@@ -162,15 +168,15 @@ function App() {
       .then((res) => {
         const data = res.data.response.body.items.item;
         const highestTemp = `${
-          data.find((item) => item.category == "TMX").fcstValue
+          data.find((item: ApiForm) => item.category == "TMX").fcstValue
         }`;
 
         const lowestTemp = `${
-          data.find((item) => item.category == "TMN").fcstValue
+          data.find((item: ApiForm) => item.category == "TMN").fcstValue
         }`;
 
         const todayWind = `${
-          data.find((item) => item.category == "WSD").fcstValue
+          data.find((item: ApiForm) => item.category == "WSD").fcstValue
         }`;
         setTodayWeather({
           highestTemp,
