@@ -120,7 +120,7 @@ function App() {
   const getNowWeather = () => {
     axios
       .get(
-        `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${
+        `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${
           import.meta.env.VITE_PUBLIC_API_KEY
         }&numOfRows=10&pageNo=1&dataType=JSON&base_date=${date}&base_time=${time}&nx=${
           xy.x
@@ -158,7 +158,7 @@ function App() {
   const getTodayWeather = () => {
     axios
       .get(
-        `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst
+        `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst
 ?serviceKey=${
           import.meta.env.VITE_PUBLIC_API_KEY
         }&numOfRows=200&pageNo=1&dataType=JSON
