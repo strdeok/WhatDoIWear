@@ -1,54 +1,46 @@
-# React + TypeScript + Vite
+### ✨ 서비스명: 오늘 뭐 입지?
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- 현재 기온, 미세먼지, 습도 등 날씨 정보를 기반으로 사용자에게 적절한 옷차림을 추천하는 웹 서비스
+- 카카오 맵 API를 활용한 위치 기반 날씨 정보 제공
+- JSON 데이터 기반으로 기온별 추천 의상 제공
+- 기상특보 및 미세먼지 정보를 추가하여 종합적인 의상 추천
 
-Currently, two official plugins are available:
+## 2. 주요 기능
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### ☀️ **날씨 정보 제공**
 
-## Expanding the ESLint configuration
+- 현재 위치 기반 실시간 날씨 정보 (최고/최저/현재 기온)
+- 습도, 미세먼지/초미세먼지 수치 표시
+- 기상특보 알림 제공
+- 카카오 맵 API를 활용한 지도 기반 날씨 정보
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 🌍 **위치 기반 기능**
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- 사용자의 현재 위치 자동 감지
+- 사용자가 원하는 지역을 직접 검색하여 날씨 조회 가능
+- 위치 변경 시 즉시 반영되는 날씨 정보
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 🎭 **기온별 옷차림 추천**
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- JSON 데이터 기반의 기온별 옷차림 추천 적용
+- 날씨 변화에 따라 추천되는 의상 업데이트
+- 미세먼지 농도가 높을 경우 마스크 착용 권장
+- 기상특보 (폭염, 한파 등) 발생 시 특수 추천 제공
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+### 📲 **UI/UX 구성**
+
+- 모바일 중심의 간결한 UI/UX 설계
+- 기온별 옷차림을 직관적으로 보여주는 아이콘 및 이미지 활용
+- 현재 날씨 및 추천 옷차림을 한눈에 확인 가능
+
+## 3. 기술 스택
+
+- **프론트엔드:** React, Vite, Tailwind CSS
+- **API:** 카카오 맵 API, 공공데이터 API 활용
+- **배포:** Vercel
+
+## 4. 기대 효과
+
+- 사용자들이 날씨에 맞춰 옷을 준비하는 데 도움 제공
+- 미세먼지 및 기상특보를 반영한 보다 실용적인 의상 추천
+- 위치 기반 날씨 정보로 여행 및 외출 계획에 유용함
