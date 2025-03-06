@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import "./App.css";
 import axios from "axios";
 import dayjs from "dayjs";
+import { IoIosInformationCircleOutline } from "react-icons/io";
+import { IoMdClose } from "react-icons/io";
 
 interface LocationData {
   depth_1: string;
@@ -116,13 +117,22 @@ function App() {
     wind: "",
   });
   const date = dayjs().format("YYYYMMDD");
-  const time = dayjs().format("HHmm");
+  const hour = Number(dayjs().format("HH"));
+  const minute = Number(dayjs().format("mm"));
+  const editedTime = () => {
+    if (minute < 10) {
+      const editedMinute = 30 + minute;
+      const editedHour = hour - 1;
+      return editedHour.toString() + editedMinute.toString();
+    } else return dayjs().format("HHmm");
+  };
+
   const getNowWeather = () => {
     axios
       .get(
         `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${
           import.meta.env.VITE_PUBLIC_API_KEY
-        }&numOfRows=10&pageNo=1&dataType=JSON&base_date=${date}&base_time=${time}&nx=${
+        }&numOfRows=10&pageNo=1&dataType=JSON&base_date=${date}&base_time=${editedTime()}=&nx=${
           xy.x
         }&ny=${xy.y}`
       )
@@ -155,8 +165,8 @@ function App() {
     todayWind: "",
   });
 
-  const getTodayWeather = () => {
-    axios
+  const getTodayWeather = async () => {
+    await axios
       .get(
         `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst
 ?serviceKey=${
@@ -192,26 +202,50 @@ function App() {
   // 옷차림 추천하기
   const [clothes, setClothes] = useState([]);
 
-  const recommendClothes = () => {
-    axios.get("/clothes.json").then((res) => {
+  const recommendClothes = async () => {
+    await axios.get("/clothes.json").then((res) => {
       const data = res.data.data;
-      console.log(nowWeather.temperature);
       for (var i = 0; i < data.length - 1; i++) {
         // 마지막 요소는 i + 1이 존재하지 않도록 -1까지 반복
         if (
-          nowWeather.temperature < data[i].temperature &&
-          nowWeather.temperature >= data[i + 1].temperature
+          todayWeather.highestTemp < data[i].temperature &&
+          todayWeather.highestTemp >= data[i + 1].temperature
         ) {
           setClothes(data[i].clothes);
         }
       }
 
-      if (nowWeather.temperature > data[0].temperature) {
+      if (todayWeather.highestTemp > data[0].temperature) {
         setClothes(data[0].clothes);
-      } else if (nowWeather.temperature < data[data.length - 1].temperature) {
+      } else if (
+        todayWeather.highestTemp < data[data.length - 1].temperature &&
+        todayWeather.highestTemp.length > 1
+      ) {
         setClothes(data[data.length - 1].clothes);
       }
     });
+  };
+
+  // 주의 모달 띄우기
+  const [activeModal, setActivevModal] = useState(false);
+
+  const Modal = () => {
+    return (
+      <div className="absolute bg-white border border-black rounded-xl p-3 w-screen left-0">
+        <p
+          className="float-right"
+          onClick={() => {
+            setActivevModal(false);
+          }}
+        >
+          <IoMdClose />
+        </p>
+        <div className="float-end">
+          <p>옷차림은 02시에 발표된 오늘의 최고 기온을 기준으로 합니다.</p>
+          <p>예보는 실시간으로 바뀔 수 있으니 참고자료로만 사용해주세요.</p>
+        </div>
+      </div>
+    );
   };
 
   useEffect(() => {
@@ -225,20 +259,46 @@ function App() {
 
   useEffect(() => {
     recommendClothes();
-  }, [nowWeather]);
+  }, [todayWeather]);
 
   return (
-    <>
-      <p>현재 온도 {nowWeather.temperature}℃</p>
-      <p>현재 습도 {nowWeather.humidity}%</p>
-      <p>현재 바람 {nowWeather.wind}m/s</p>
-      {clothes.map((element) => {
-        return <div>{element} </div>;
-      })}
-      <p>오늘 최고 기온 {todayWeather.highestTemp}</p>
-      <p>오늘 최저 기온 {todayWeather.lowestTemp}</p>
-      <p>오늘 바람 {todayWeather.todayWind}</p>
-    </>
+    <div className="w-full h-full flex items-center justify-center text-center">
+      <main className="flex flex-col w-2/3 items-center justify-center gap-8 border-2 border-[#7AB2B2] p-10 rounded-xl">
+        <div>
+          <div className="text-xl">지금 날씨</div>
+          <p>현재 온도 {nowWeather.temperature}℃</p>
+          <p>현재 습도 {nowWeather.humidity}%</p>
+          <p>현재 바람 {nowWeather.wind}m/s</p>
+        </div>{" "}
+        <div>
+          <div className="text-xl">오늘 날씨</div>
+          <p>오늘 최고 기온 {todayWeather.highestTemp}℃</p>
+          <p>오늘 최저 기온 {todayWeather.lowestTemp}℃</p>
+          <p>오늘 바람 {todayWeather.todayWind}m/s</p>
+        </div>
+        <div>
+          <div className="flex flex-row items-center">
+            <div className="text-xl mr-2">추천 옷차림</div>
+            <div
+              onClick={() => {
+                setActivevModal(true);
+              }}
+            >
+              <IoIosInformationCircleOutline />
+            </div>
+          </div>
+          {activeModal ? <Modal /> : null}
+
+          {clothes.map((element) => {
+            return <div>{element} </div>;
+          })}
+        </div>
+        {/* <div>
+          <button>현재 지역 날씨</button>
+          <button>학교 날씨</button>
+        </div> */}
+      </main>
+    </div>
   );
 }
 
