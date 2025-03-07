@@ -3,6 +3,8 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoMdClose } from "react-icons/io";
+import { IoWaterOutline } from "react-icons/io5";
+import { GiWindsock } from "react-icons/gi";
 
 interface LocationData {
   depth_1: string;
@@ -132,7 +134,7 @@ function App() {
       .get(
         `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${
           import.meta.env.VITE_PUBLIC_API_KEY
-        }&numOfRows=10&pageNo=1&dataType=JSON&base_date=${date}&base_time=${editedTime()}=&nx=${
+        }&numOfRows=10&pageNo=1&dataType=JSON&base_date=${date}&base_time=${editedTime()}&nx=${
           xy.x
         }&ny=${xy.y}`
       )
@@ -199,6 +201,72 @@ function App() {
       });
   };
 
+  const school = "송도 1동";
+
+  const getNowSchoolWeather = () => {
+    axios
+      .get(
+        `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${
+          import.meta.env.VITE_PUBLIC_API_KEY
+        }&numOfRows=10&pageNo=1&dataType=JSON&base_date=${date}&base_time=${editedTime()}&nx=54&ny=123`
+      )
+      .then((res) => {
+        const data = res.data.response.body.items.item;
+        const temperature = `${
+          data.find((item: ApiForm) => item.category == "T1H").obsrValue
+        }`;
+        const humidity = `${
+          data.find((item: ApiForm) => item.category == "REH").obsrValue
+        }`;
+        const wind = `${
+          data.find((item: ApiForm) => item.category == "WSD").obsrValue
+        }`;
+        const nowWeather = {
+          temperature,
+          humidity,
+          wind,
+        };
+        setNowWeather(nowWeather);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const getTodaySchoolWeather = async () => {
+    await axios
+      .get(
+        `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst
+?serviceKey=${
+          import.meta.env.VITE_PUBLIC_API_KEY
+        }&numOfRows=200&pageNo=1&dataType=JSON
+&base_date=${date}&base_time=0200&nx=54&ny=123
+`
+      )
+      .then((res) => {
+        const data = res.data.response.body.items.item;
+        const highestTemp = `${
+          data.find((item: ApiForm) => item.category == "TMX").fcstValue
+        }`;
+
+        const lowestTemp = `${
+          data.find((item: ApiForm) => item.category == "TMN").fcstValue
+        }`;
+
+        const todayWind = `${
+          data.find((item: ApiForm) => item.category == "WSD").fcstValue
+        }`;
+        setTodayWeather({
+          highestTemp,
+          lowestTemp,
+          todayWind,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   // 옷차림 추천하기
   const [clothes, setClothes] = useState([]);
 
@@ -208,8 +276,8 @@ function App() {
       for (var i = 0; i < data.length - 1; i++) {
         // 마지막 요소는 i + 1이 존재하지 않도록 -1까지 반복
         if (
-          todayWeather.highestTemp < data[i].temperature &&
-          todayWeather.highestTemp >= data[i + 1].temperature
+          todayWeather.highestTemp <= data[i].temperature &&
+          todayWeather.highestTemp > data[i + 1].temperature
         ) {
           setClothes(data[i].clothes);
         }
@@ -231,7 +299,7 @@ function App() {
 
   const Modal = () => {
     return (
-      <div className="absolute bg-white border border-black rounded-xl p-3 w-screen left-0">
+      <div className="absolute bg-white text-black border border-black rounded-xl p-3 left-0">
         <p
           className="float-right"
           onClick={() => {
@@ -248,6 +316,8 @@ function App() {
     );
   };
 
+  const [active, setActive] = useState("now");
+
   useEffect(() => {
     getXY();
   }, [address]);
@@ -262,20 +332,30 @@ function App() {
   }, [todayWeather]);
 
   return (
-    <div className="w-full h-full flex items-center justify-center text-center">
-      <main className="flex flex-col w-2/3 items-center justify-center gap-8 border-2 border-[#7AB2B2] p-10 rounded-xl">
+    <div className="w-full h-full flex items-center justify-center text-center text-white bg-[#7AB2B2]">
+      <main className="relative flex flex-col w-2/3 items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl">
         <div>
-          <div className="text-xl">지금 날씨</div>
-          <p>현재 온도 {nowWeather.temperature}℃</p>
-          <p>현재 습도 {nowWeather.humidity}%</p>
-          <p>현재 바람 {nowWeather.wind}m/s</p>
-        </div>{" "}
-        <div>
-          <div className="text-xl">오늘 날씨</div>
-          <p>오늘 최고 기온 {todayWeather.highestTemp}℃</p>
-          <p>오늘 최저 기온 {todayWeather.lowestTemp}℃</p>
-          <p>오늘 바람 {todayWeather.todayWind}m/s</p>
+          <div>{active === "now" ? address.depth_3 : school}</div>
+          <div className="text-xl font-semibold">지금 날씨</div>
+          <p className="text-5xl">{nowWeather.temperature}℃</p>
+          <br />
+          <p className="flex gap-4 items-center justify-center">
+            <IoWaterOutline />
+            {nowWeather.humidity}%
+          </p>
+          <p className="flex gap-4 items-center justify-center">
+            <GiWindsock />
+            {nowWeather.wind}m/s
+          </p>
         </div>
+
+        <div className="text-xs">
+          <div className="text-sm">오늘 날씨</div>
+          <p>
+            최고 {todayWeather.highestTemp}℃ / 최저 {todayWeather.lowestTemp}℃
+          </p>
+        </div>
+
         <div>
           <div className="flex flex-row items-center">
             <div className="text-xl mr-2">추천 옷차림</div>
@@ -293,11 +373,34 @@ function App() {
             return <div>{element} </div>;
           })}
         </div>
-        {/* <div>
-          <button>현재 지역 날씨</button>
-          <button>학교 날씨</button>
-        </div> */}
-      </main>
+      </main>{" "}
+      <div className="absolute bottom-5 flex flex-row gap-3">
+        <button
+          className={`border border-white rounded-lg p-2 shadow-md bg-${
+            active === "now" ? "[#4D869C]" : null
+          }`}
+          onClick={() => {
+            setActive("now");
+            getTodayWeather();
+            getNowWeather();
+          }}
+        >
+          현재 지역 날씨
+        </button>
+
+        <button
+          className={`border border-white rounded-lg p-2 shadow-md bg-${
+            active !== "now" ? "[#4D869C]" : null
+          }`}
+          onClick={() => {
+            setActive("school");
+            getTodaySchoolWeather();
+            getNowSchoolWeather();
+          }}
+        >
+          현재 학교 날씨
+        </button>
+      </div>
     </div>
   );
 }
