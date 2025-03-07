@@ -376,8 +376,8 @@ function App() {
       </main>{" "}
       <div className="absolute bottom-5 flex flex-row gap-3">
         <button
-          className={`border border-white rounded-lg p-2 shadow-md bg-${
-            active === "now" ? "[#4D869C]" : null
+          className={`border border-white rounded-lg p-2 shadow-md ${
+            active == "now" ? "bg-[#4D869C]" : null
           }`}
           onClick={() => {
             setActive("now");
@@ -389,8 +389,8 @@ function App() {
         </button>
 
         <button
-          className={`border border-white rounded-lg p-2 shadow-md bg-${
-            active !== "now" ? "[#4D869C]" : null
+          className={`border border-white rounded-lg p-2 shadow-md ${
+            active != "now" ? "bg-[#4D869C]" : null
           }`}
           onClick={() => {
             setActive("school");
