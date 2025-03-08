@@ -10,3 +10,10 @@ body,
   margin: 0;
   padding: 0;
 }
+
+@media all and (max-height: 800px) {
+  html, body, #root {
+    font-size: 14px;
+  }
+  
+}
