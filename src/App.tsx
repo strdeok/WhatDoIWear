@@ -35,15 +35,15 @@ function App() {
 
   // 커스텀 훅
   const getAddress = useGetAddress(locationRef, setAddress);
+  const getNowWeather = GetNowWeather(date, xy, setNowWeather, editedTime);
+  const getTodayWeather = GetTodayWeather(date, xy, setTodayWeather);
   const getNowSchoolWeather = GetNowSchoolWeather(
     date,
     setNowWeather,
     editedTime
   );
-  const getTodaySchoolWeather = GetTodaySchoolWeather(date, setNowWeather);
+  const getTodaySchoolWeather = GetTodaySchoolWeather(date, setTodayWeather);
   const getXY = useGetXY(address, setXY);
-  const getNowWeather = GetNowWeather(date, xy, setNowWeather, editedTime);
-  const getTodayWeather = GetTodayWeather(date, xy, setTodayWeather);
   const recommendClothes = RecommendClothes(todayWeather, setClothes);
 
   const school = "송도 1동";
@@ -62,13 +62,18 @@ function App() {
   }, [address]);
 
   useEffect(() => {
-    getNowWeather();
-    getTodayWeather();
-  }, [xy]);
+    if (active === "now") {
+      getNowWeather();
+      getTodayWeather();
+    } else {
+      getTodaySchoolWeather();
+      getNowSchoolWeather();
+    }
+  }, [xy, active]);
 
   useEffect(() => {
     recommendClothes();
-  }, [todayWeather]);
+  }, [todayWeather, setTodayWeather]);
 
   return (
     <div className="w-full h-full flex items-center justify-center text-center text-white bg-[#7AB2B2]">
@@ -120,8 +125,6 @@ function App() {
           }`}
           onClick={() => {
             setActive("now");
-            getTodayWeather();
-            getNowWeather();
           }}
         >
           현재 지역 날씨
@@ -133,8 +136,6 @@ function App() {
           }`}
           onClick={() => {
             setActive("school");
-            getTodaySchoolWeather();
-            getNowSchoolWeather();
           }}
         >
           현재 학교 날씨
