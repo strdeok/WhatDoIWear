@@ -76,7 +76,7 @@ function App() {
   }, [todayWeather, setTodayWeather]);
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center text-center text-white bg-[#7AB2B2] overflow-scroll min-h-[45rem]">
+    <div className="relative w-full h-full flex flex-col items-center justify-center text-center text-white bg-[#71C9CE] overflow-scroll min-h-[45rem]">
       <main className="relative flex flex-col w-2/3 items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl">
         <div>
           <div>{active === "now" ? address.depth_3 : school}</div>
@@ -120,8 +120,8 @@ function App() {
       </main>
       <div className="w-3/4 mt-14 bottom-5 flex flex-row gap-3 justify-evenly">
         <button
-          className={`border border-white rounded-lg p-2 shadow-md ${
-            active == "now" ? "bg-[#4D869C]" : null
+          className={`border rounded-lg p-2 shadow-md ${
+            active == "now" ? "bg-[#4689a4] border-none" : "border-white"
           }`}
           onClick={() => {
             setActive("now");
@@ -131,8 +131,8 @@ function App() {
         </button>
 
         <button
-          className={`border border-white rounded-lg p-2 shadow-md ${
-            active != "now" ? "bg-[#4D869C]" : null
+          className={`border rounded-lg p-2 shadow-md ${
+            active != "now" ? "bg-[#4689a4] border-none" : "border-white"
           }`}
           onClick={() => {
             setActive("school");
