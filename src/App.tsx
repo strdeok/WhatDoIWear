@@ -14,8 +14,7 @@ import Modal from "./components/Modal";
 import CalculateSummerFeelTemperature from "./util/CalculateSummerFeelTemperature";
 import CalculateWinterFeelTemperature from "./util/CalculateWinterFeelTemperature";
 import dayjs from "dayjs";
-// import GetMesureCenterXY from "./util/GetMesureCenterXY";
-// import GetMesureCenterName from "./util/GetMesureCenterName";
+import GetMicroDust from "./util/GetMicroDust";
 
 function App() {
   const {
@@ -31,8 +30,7 @@ function App() {
     clothes,
     setClothes,
     editedTime,
-  }: // tmXY,
-  any = useStore(); // zustand 변수
+  }: any = useStore(); // zustand 변수
 
   // react 훅
   const [activeModal, setActiveModal] = useState(false);
@@ -51,8 +49,6 @@ function App() {
   const getTodaySchoolWeather = GetTodaySchoolWeather(date, setTodayWeather);
   const getXY = useGetXY(address, setXY);
   const recommendClothes = RecommendClothes(todayWeather, setClothes);
-  // const getMesureCenterXY = GetMesureCenterXY()
-  // const getMesureCenterName = GetMesureCenterName()
 
   const school = "송도1동";
 
@@ -117,17 +113,12 @@ function App() {
     }
   }, [nowWeather]);
 
-  // useEffect(()=>{
-  //   getMesureCenterXY()
-  //   if(tmXY){
-  //     console.log(getMesureCenterName())
-  //   }
-  // }, [address, tmXY])
+  useEffect(() => {}, [address]);
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-scroll min-h-[45rem]">
+    <div className="relative w-full h-full pt-32 pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-scroll min-h-[45rem]">
       <main
-        className="relative flex flex-col w-full max-w-xs mx-32 items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl 
+        className="relative flex flex-col w-full max-w-xs  items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl 
       "
       >
         <div>
@@ -146,6 +137,7 @@ function App() {
             {nowWeather.wind}m/s
           </p>
         </div>
+        <div>{GetMicroDust()}</div>
 
         <div className="text-xs">
           <div className="text-sm">오늘 날씨</div>
@@ -174,7 +166,7 @@ function App() {
       </main>
       <div className="max-w-xs mt-14 w-full flex flex-row gap-3 justify-between">
         <button
-          className={`border rounded-lg p-2 shadow-md ${
+          className={`border rounded-lg p-2 shadow-md w-1/2 ${
             active == "now" ? "bg-[#1a81a9] border-none" : "border-white"
           }`}
           onClick={() => {
@@ -185,7 +177,7 @@ function App() {
         </button>
 
         <button
-          className={`border rounded-lg p-2 shadow-md ${
+          className={`border rounded-lg p-2 shadow-md w-1/2 ${
             active != "now" ? "bg-[#1a81a9] border-none" : "border-white"
           }`}
           onClick={() => {
