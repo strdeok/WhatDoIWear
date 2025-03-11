@@ -116,7 +116,7 @@ function App() {
   useEffect(() => {}, [address]);
 
   return (
-    <div className="relative w-full h-full pt-32 pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-scroll min-h-[45rem]">
+    <div className="relative w-full h-full pt-32 pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-x-scroll min-h-[45rem]">
       <main
         className="relative flex flex-col w-full max-w-xs  items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl 
       "
