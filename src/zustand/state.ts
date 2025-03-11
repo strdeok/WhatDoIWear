@@ -6,9 +6,12 @@ export const useStore = create((set, get) => ({
   hour: Number(dayjs().format("HH")),
   minute: Number(dayjs().format("mm")),
 
-  address: {},
-  setAddress: (newAddress: object) =>
-    set(() => ({ address: { ...newAddress } })),
+  address: { depth_1: "", depth_2: "", depth_3: "" },
+  setAddress: (newAddress: {
+    depth_1: string;
+    depth_2: string;
+    depth_3: string;
+  }) => set(() => ({ address: { ...newAddress } })),
 
   xy: {
     x: 0,
@@ -49,10 +52,22 @@ export const useStore = create((set, get) => ({
     const { hour, minute }: any = get();
     if (minute < 10) {
       const editedMinute = 30 + minute;
-      const editedHour = hour - 1;
+      let editedHour = hour - 1;
+      if (editedHour <= 10) {
+        editedHour = Number("0" + editedHour.toString());
+      }
       return editedHour.toString() + editedMinute.toString();
     } else {
       return dayjs().format("HHmm");
     }
   },
+
+  tmXY: {
+    tmX: "",
+    tmY: "",
+  },
+  setTmXY: (newTmXY: { tmX: string; tmY: string }) =>
+    set(() => ({
+      tmXY: { ...newTmXY },
+    })),
 }));

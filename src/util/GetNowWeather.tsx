@@ -23,6 +23,7 @@ export default function GetNowWeather(
         }&ny=${xy.y}`
       )
       .then((res) => {
+        console.log(res)
         const data = res.data.response.body.items.item;
         const temperature = `${
           data.find((item: ApiForm) => item.category == "T1H").obsrValue
