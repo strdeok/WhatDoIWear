@@ -24,6 +24,7 @@ export default function GetTodayWeather(
 `
       )
       .then((res) => {
+        console.log(res)
         const data = res.data.response.body.items.item;
         const highestTemp = `${
           data.find((item: ApiForm) => item.category == "TMX").fcstValue

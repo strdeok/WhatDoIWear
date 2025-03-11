@@ -16,11 +16,7 @@ export default function GetNowWeather(
   const getNowWeather = () => {
     axios
       .get(
-        `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${
-          import.meta.env.VITE_PUBLIC_API_KEY
-        }&numOfRows=10&pageNo=1&dataType=JSON&base_date=${date}&base_time=${editedTime()}&nx=${
-          xy.x
-        }&ny=${xy.y}`
+        `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${import.meta.env.VITE_PUBLIC_API_KEY}&numOfRows=10&pageNo=1&dataType=JSON&base_date=${date}&base_time=${editedTime()}&nx=${xy.x}&ny=${xy.y}`
       )
       .then((res) => {
         console.log(res)
