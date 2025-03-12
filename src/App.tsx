@@ -87,8 +87,8 @@ function App() {
     recommendClothes();
   }, [todayWeather, setTodayWeather]);
 
-  const [feelTemperature, setFeelTemperature] = useState<number>();
   // 체감온도 계산하기
+  const [feelTemperature, setFeelTemperature] = useState<number>();
   useEffect(() => {
     const month = Number(dayjs().format("MM"));
     function getFeelsLike(
@@ -113,8 +113,6 @@ function App() {
     }
   }, [nowWeather]);
 
-  useEffect(() => {}, [address]);
-
   return (
     <div className="relative w-full h-full pt-32 pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-y-scroll overflow-x-hidden min-h-[45rem]">
       <main
@@ -126,17 +124,32 @@ function App() {
           <div className="text-xl font-semibold">지금 날씨</div>
           <p className="text-5xl">{nowWeather.temperature}℃</p>
           <br />
+
           <p className="text-sm">체감온도: {feelTemperature}℃</p>
           <br />
-          <p className="flex gap-4 items-center justify-center">
-            <IoWaterOutline />
-            {nowWeather.humidity}%
-          </p>
-          <p className="flex gap-4 items-center justify-center">
-            <GiWindsock />
-            {nowWeather.wind}m/s
-          </p>
+
+          <div className="flex flex-col gap-1">
+            <p className="flex gap-4 items-center justify-center">
+              <IoWaterOutline className="text-xl" />
+              {nowWeather.humidity}%
+            </p>
+            <p className="flex gap-4 items-center justify-center">
+              <GiWindsock className="text-xl" />
+              {nowWeather.wind}m/s
+            </p>
+            <p className="flex gap-4 items-center justify-center">
+              {nowWeather.rain === "0" ? (
+                <>{nowWeather.rainType}</>
+              ) : (
+                <>
+                  {nowWeather.rainType}
+                  {nowWeather.rain}mm
+                </>
+              )}
+            </p>
+          </div>
         </div>
+
         <div>{GetMicroDust()}</div>
 
         <div className="text-xs">

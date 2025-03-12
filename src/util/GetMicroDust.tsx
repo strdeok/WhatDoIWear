@@ -3,7 +3,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { useStore } from "../zustand/state";
 import { WiDust } from "react-icons/wi";
-
+import { IoIosInformationCircleOutline, IoMdClose } from "react-icons/io";
 interface TMXY {
   tmX: number;
   tmY: number;
@@ -31,6 +31,7 @@ export default function GetMicroDust() {
     dubleMicroDust: "",
     dubleMicroDustGrade: "",
   });
+  const [modalState, setModalState] = useState(false);
 
   const measureDustGrade = (grade: string) => {
     switch (grade) {
@@ -129,17 +130,42 @@ export default function GetMicroDust() {
   }, [measureCenter]);
 
   return (
-    <p className="text-sm flex flex-col items-center">
-      <div>{microDust.presentTime} 기준</div>
+    <div className="text-sm flex flex-col items-center">
+      <div className="w-full flex flex-row items-center justify-center ">
+        {microDust.presentTime} 기준{" "}
+        <IoIosInformationCircleOutline
+          className="ml-2"
+          onClick={() => {
+            setModalState(true);
+          }}
+        />
+      </div>
       <div className="flex flex-row items-center">
         <WiDust className="text-3xl" /> 미세먼지: {microDust.microDust}㎍/㎥ (
         {microDust.microDustGrade})
       </div>
 
       <div className="flex flex-row items-center">
-      <WiDust className="text-3xl" /> 초미세먼지: {microDust.dubleMicroDust}㎍/㎥ (
-        {microDust.dubleMicroDustGrade})
+        <WiDust className="text-3xl" /> 초미세먼지: {microDust.dubleMicroDust}
+        ㎍/㎥ ({microDust.dubleMicroDustGrade})
       </div>
-    </p>
+
+      {modalState ? <div className="absolute bg-white text-black border border-black rounded-xl p-3 left-0">
+        <p
+          className="float-right"
+          onClick={() => {
+            setModalState(false);
+          }}
+        >
+          <IoMdClose />
+        </p>
+        <div className="float-end">
+          <p>
+            인증을 받지 않은 실시간 자료이기 때문에 자료 오류 및 표출방식에 따라
+            값이 다를 수 있습니다.
+          </p>
+        </div>
+      </div> : null}
+    </div>
   );
 }

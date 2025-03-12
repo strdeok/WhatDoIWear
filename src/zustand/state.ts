@@ -6,7 +6,7 @@ export const useStore = create((set, get) => ({
   hour: Number(dayjs().format("HH")),
   minute: Number(dayjs().format("mm")),
 
-  address: { depth_1: "", depth_2: "", depth_3: "" },
+  address: { depth_1: null, depth_2: null, depth_3: null },
   setAddress: (newAddress: {
     depth_1: string;
     depth_2: string;
@@ -14,15 +14,15 @@ export const useStore = create((set, get) => ({
   }) => set(() => ({ address: { ...newAddress } })),
 
   xy: {
-    x: 0,
-    y: 0,
+    x: null,
+    y: null,
   },
   setXY: (newXY: { x: number; y: number }) => set(() => ({ xy: { ...newXY } })),
 
   nowWeather: {
-    temperature: "",
-    humidity: "",
-    wind: "",
+    temperature: null,
+    humidity: null,
+    wind: null,
   },
   setNowWeather: (newNowWeather: {
     temperature: string;
@@ -31,14 +31,18 @@ export const useStore = create((set, get) => ({
   }) => set(() => ({ nowWeather: { ...newNowWeather } })),
 
   todayWeather: {
-    highestTemp: "",
-    lowestTemp: "",
-    todayWind: "",
+    highestTemp: null,
+    lowestTemp: null,
+    todayWind: null,
+    rain: null,
+    rainType: null
   },
   setTodayWeather: (newTodayWeather: {
     highestTemp: string;
     lowestTemp: string;
     todayWind: string;
+    rain: string;
+    rainType: string;
   }) =>
     set(() => ({
       todayWeather: { ...newTodayWeather },
@@ -63,8 +67,8 @@ export const useStore = create((set, get) => ({
   },
 
   tmXY: {
-    tmX: "",
-    tmY: "",
+    tmX: null,
+    tmY: null,
   },
   setTmXY: (newTmXY: { tmX: string; tmY: string }) =>
     set(() => ({

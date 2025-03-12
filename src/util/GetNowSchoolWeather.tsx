@@ -1,4 +1,7 @@
 import axios from "axios";
+import { FiCloudSnow } from "react-icons/fi";
+import { IoRainyOutline } from "react-icons/io5";
+import { WiRainMix } from "react-icons/wi";
 
 interface ApiForm {
   category: string;
@@ -9,6 +12,25 @@ export default function GetNowSchoolWeather(
   setNowWeather: (newNowWeather: object) => void,
   editedTime: () => string
 ) {
+
+  const translateRainType = (rainType: string) => {
+      switch (rainType) {
+        case "0":
+          return "강수없음";
+        case "1":
+          return <IoRainyOutline className="text-2xl" />;
+        case "2 ":
+          return <WiRainMix className="text-2xl" />;
+        case "3":
+          return <FiCloudSnow className="text-2xl" />;
+        case "5":
+          return <IoRainyOutline className="text-2xl" />;
+        case "6":
+          return <WiRainMix  className="text-2xl"/>;
+        case "7":
+          return <FiCloudSnow  className="text-2xl"/>;
+      }
+    };
   const getNowSchoolWeather = () => {
     axios
       .get(
@@ -19,18 +41,26 @@ export default function GetNowSchoolWeather(
       .then((res) => {
         const data = res.data.response.body.items.item;
         const temperature = `${
-          data.find((item: ApiForm) => item.category == "T1H").obsrValue
+          data.find((item: ApiForm) => item.category === "T1H").obsrValue
         }`;
         const humidity = `${
-          data.find((item: ApiForm) => item.category == "REH").obsrValue
+          data.find((item: ApiForm) => item.category === "REH").obsrValue
         }`;
         const wind = `${
-          data.find((item: ApiForm) => item.category == "WSD").obsrValue
+          data.find((item: ApiForm) => item.category === "WSD").obsrValue
         }`;
+        const rain = `${
+          data.find((item: ApiForm) => item.category === "RN1").obsrValue
+        }`;
+        const rainType = translateRainType(
+          `${data.find((item: ApiForm) => item.category === "PTY").obsrValue}`
+        );
         const nowWeather = {
           temperature,
           humidity,
           wind,
+          rain,
+          rainType,
         };
         setNowWeather(nowWeather);
       })
