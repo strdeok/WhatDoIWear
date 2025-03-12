@@ -83,7 +83,7 @@ export default function GetMicroDust() {
   const getMicroDust = () => {
     axios
       .get(
-        `http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${
+        `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${
           import.meta.env.VITE_PUBLIC_API_KEY
         }&returnType=JSON&stationName=${measureCenter}&dataTerm=DAILY&pageNo=1&numOfRow=100&ver=1.1`
       )
