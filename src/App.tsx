@@ -53,17 +53,21 @@ function App() {
 
   const school = "송도1동";
 
-  // 현재 위도 경도 토대로 주소 받기기
+  // 현재 위도 경도 토대로 주소 받기
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      if (location.latitude !== position.coords.latitude) {
-        setLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-      }
-    });
-    // 위치가 업데이트 될 때마다 주소를 갱신
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        if (
+          location.latitude !== position.coords.latitude &&
+          location.longitude !== position.coords.longitude
+        ) {
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        }
+      });
+    }
     getAddress();
   }, [location]);
 
@@ -102,9 +106,9 @@ function App() {
       humidity: number
     ): number {
       if (month <= 9 || month >= 5)
-        return CalculateWinterFeelTemperature(temp, windSpeed);
+        return CalculateSummerFeelTemperature(temp, windSpeed);
       else if (month >= 10 || month <= 4)
-        return CalculateSummerFeelTemperature(temp, humidity);
+        return CalculateWinterFeelTemperature(temp, humidity);
       else return temp;
     }
     if (nowWeather) {
@@ -119,7 +123,7 @@ function App() {
   }, [nowWeather]);
 
   return (
-    <div className="relative w-full  pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-y-scroll overflow-x-hidden min-h-[45rem]">
+    <div className="relative w-full  pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-x-hidden min-h-[45rem]">
       <main
         className="relative flex flex-col w-full max-w-xs items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl mt-10 
       "
@@ -206,6 +210,12 @@ function App() {
           현재 학교 날씨
         </button>
       </div>
+      <footer className="text-xs text-blue-300 mt-8">
+        <p>출처: 기상청 | 한국환경공단 | 카카오 API</p>
+        <a href="https://github.com/strdeok">
+          제작: https://github.com/strdeok
+        </a>
+      </footer>
     </div>
   );
 }

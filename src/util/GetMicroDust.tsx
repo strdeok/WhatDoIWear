@@ -4,6 +4,8 @@ import dayjs from "dayjs";
 import { useStore } from "../zustand/state";
 import { WiDust } from "react-icons/wi";
 import { IoIosInformationCircleOutline, IoMdClose } from "react-icons/io";
+import { RiSurgicalMaskLine } from "react-icons/ri";
+import { GiGasMask } from "react-icons/gi";
 interface TMXY {
   tmX: number;
   tmY: number;
@@ -54,11 +56,16 @@ export default function GetMicroDust() {
         }&returnType=JSON&numOfRows=100&pageNo=1&umdName=${address.depth_3}`
       )
       .then((res) => {
-        const tmXY = {
-          tmX: res.data.response.body.items[0].tmX,
-          tmY: res.data.response.body.items[0].tmY,
-        };
-        setTmXY(tmXY);
+        console.log(res)
+        if (!res.data.response) {
+          alert("앗 오늘 할당량을 다 소진했어요!");
+        } else {
+          const tmXY = {
+            tmX: res.data.response.body.items[0].tmX,
+            tmY: res.data.response.body.items[0].tmY,
+          };
+          setTmXY(tmXY);
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -69,8 +76,8 @@ export default function GetMicroDust() {
     axios
       .get(
         `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${
-                import.meta.env.VITE_PUBLIC_API_KEY
-              }&returnType=JSON&tmX=${tmXY.tmX}&tmY=${tmXY.tmY}&ver=1.1`
+          import.meta.env.VITE_PUBLIC_API_KEY
+        }&returnType=JSON&tmX=${tmXY.tmX}&tmY=${tmXY.tmY}&ver=1.1`
       )
       .then((res) => {
         setMeasureCenter(res.data.response.body.items[0].stationName);
@@ -91,9 +98,9 @@ export default function GetMicroDust() {
         const recentResult = res.data.response.body.items[0];
         const presentTime = dayjs(recentResult.dataTime).format("HH:mm");
         const microDust = recentResult.pm10Value;
-        const microDustGrade = measureDustGrade(recentResult.pm10Grade);
+        const microDustGrade = measureDustGrade(recentResult.pm10Grade1h);
         const dubleMicroDust = recentResult.pm25Value;
-        const dubleMicroDustGrade = measureDustGrade(recentResult.pm25Grade);
+        const dubleMicroDustGrade = measureDustGrade(recentResult.pm25Grade1h);
         // grade 1: 좋음 / 2: 보통 / 3: 나쁨 / 4: 매우 나쁨
         const microDustData = {
           presentTime,
@@ -128,6 +135,28 @@ export default function GetMicroDust() {
     }
   }, [measureCenter]);
 
+  const EquipmentForMicroDust = () => {
+    switch (microDust.microDustGrade || microDust.dubleMicroDustGrade) {
+      case "좋음":
+        return null;
+      case "보통":
+      case "나쁨":
+        return (
+          <div className="flex flex-row items-center gap-2">
+            <RiSurgicalMaskLine />
+            마스크 착용을 권장합니다.
+          </div>
+        );
+      case "매우나쁨":
+        return (
+          <div className="flex flex-row items-center gap-2">
+            <GiGasMask />
+            마스크를 꼭 착용하세요!
+          </div>
+        );
+    }
+  };
+
   return (
     <div className="text-sm flex flex-col items-center">
       <div className="w-full flex flex-row items-center justify-center ">
@@ -148,23 +177,26 @@ export default function GetMicroDust() {
         <WiDust className="text-3xl" /> 초미세먼지: {microDust.dubleMicroDust}
         ㎍/㎥ ({microDust.dubleMicroDustGrade})
       </div>
+      <EquipmentForMicroDust />
 
-      {modalState ? <div className="absolute bg-white text-black border border-black rounded-xl p-3 left-0">
-        <p
-          className="float-right"
-          onClick={() => {
-            setModalState(false);
-          }}
-        >
-          <IoMdClose />
-        </p>
-        <div className="float-end">
-          <p>
-            인증을 받지 않은 실시간 자료이기 때문에 자료 오류 및 표출방식에 따라
-            값이 다를 수 있습니다.
+      {modalState ? (
+        <div className="absolute bg-white text-black border border-black rounded-xl p-3 left-0">
+          <p
+            className="float-right"
+            onClick={() => {
+              setModalState(false);
+            }}
+          >
+            <IoMdClose />
           </p>
+          <div className="float-end">
+            <p>
+              인증을 받지 않은 실시간 자료이기 때문에 자료 오류 및 표출방식에
+              따라 값이 다를 수 있습니다.
+            </p>
+          </div>
         </div>
-      </div> : null}
+      ) : null}
     </div>
   );
 }
