@@ -68,8 +68,7 @@ export default function GetMicroDust() {
   const getMesureCenterName = () => {
     axios
       .get(
-        `
-              https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${
+        `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${
                 import.meta.env.VITE_PUBLIC_API_KEY
               }&returnType=JSON&tmX=${tmXY.tmX}&tmY=${tmXY.tmY}&ver=1.1`
       )
@@ -86,7 +85,7 @@ export default function GetMicroDust() {
       .get(
         `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${
           import.meta.env.VITE_PUBLIC_API_KEY
-        }&returnType=JSON&stationName=${measureCenter}&dataTerm=DAILY&pageNo=1&numOfRow=100&ver=1.1`
+        }&returnType=JSON&stationName=${measureCenter}&dataTerm=DAILY&pageNo=1&numOfRow=100&ver=1.3`
       )
       .then((res) => {
         const recentResult = res.data.response.body.items[0];
