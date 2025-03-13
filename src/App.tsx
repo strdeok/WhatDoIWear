@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "./zustand/state";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoWaterOutline } from "react-icons/io5";
@@ -15,6 +15,7 @@ import CalculateSummerFeelTemperature from "./util/CalculateSummerFeelTemperatur
 import CalculateWinterFeelTemperature from "./util/CalculateWinterFeelTemperature";
 import dayjs from "dayjs";
 import GetMicroDust from "./util/GetMicroDust";
+import GetKakaoMap from "./util/GetKakaoMap";
 
 function App() {
   const {
@@ -35,10 +36,10 @@ function App() {
   // react 훅
   const [activeModal, setActiveModal] = useState(false);
   const [active, setActive] = useState("now");
-  const locationRef = useRef({ latitude: 0, longitude: 0 });
+  const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
 
   // 커스텀 훅
-  const getAddress = useGetAddress(locationRef, setAddress);
+  const getAddress = useGetAddress(location, setAddress);
   const getNowWeather = GetNowWeather(date, xy, setNowWeather, editedTime);
   const getTodayWeather = GetTodayWeather(date, xy, setTodayWeather);
   const getNowSchoolWeather = GetNowSchoolWeather(
@@ -55,12 +56,16 @@ function App() {
   // 현재 위도 경도 토대로 주소 받기기
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((position) => {
-      locationRef.current.latitude = position.coords.latitude;
-      locationRef.current.longitude = position.coords.longitude;
-      // 위치가 업데이트 될 때마다 주소를 갱신
-      getAddress();
+      if (location.latitude !== position.coords.latitude) {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      }
     });
-  }, []);
+    // 위치가 업데이트 될 때마다 주소를 갱신
+    getAddress();
+  }, [location]);
 
   // 주소를 토대로 XY값 받기기
   useEffect(() => {
@@ -114,11 +119,12 @@ function App() {
   }, [nowWeather]);
 
   return (
-    <div className="relative w-full h-screen pt-32 pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-y-scroll overflow-x-hidden min-h-[45rem]">
+    <div className="relative w-full  pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-y-scroll overflow-x-hidden min-h-[45rem]">
       <main
-        className="relative flex flex-col w-full max-w-xs  items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl 
+        className="relative flex flex-col w-full max-w-xs items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl mt-10 
       "
       >
+        <GetKakaoMap location={location} />
         <div>
           <div>{active === "now" ? address.depth_3 : school}</div>
           <div className="text-xl font-semibold">지금 날씨</div>

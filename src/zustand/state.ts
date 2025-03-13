@@ -19,6 +19,14 @@ export const useStore = create((set, get) => ({
   },
   setXY: (newXY: { x: number; y: number }) => set(() => ({ xy: { ...newXY } })),
 
+  kakaoXY: {
+    x: null,
+    y: null,
+  },
+
+  setKakaoXY: (newKakaoXY: { x: number; y: number }) =>
+    set(() => ({ kakaoXY: { ...newKakaoXY } })),
+
   nowWeather: {
     temperature: null,
     humidity: null,
@@ -35,7 +43,7 @@ export const useStore = create((set, get) => ({
     lowestTemp: null,
     todayWind: null,
     rain: null,
-    rainType: null
+    rainType: null,
   },
   setTodayWeather: (newTodayWeather: {
     highestTemp: string;

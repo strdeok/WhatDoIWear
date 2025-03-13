@@ -1,18 +1,18 @@
 import axios from "axios";
-import { RefObject } from "react";
 
 const KakaoKey = import.meta.env.VITE_KAKAO_KEY;
 export default function useGetAddress(
-  locationRef: RefObject<{
+  location: {
     latitude: number;
     longitude: number;
-  }>,
+  },
   setAddress: (newAddress: object) => void
 ) {
+  console.log(location)
   const getAddress = async () => {
     await axios
       .get(
-        `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${locationRef.current.longitude}&y=${locationRef.current.latitude}`,
+        `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${location.longitude}&y=${location.latitude}`,
         {
           headers: {
             Authorization: `KakaoAK ${KakaoKey}`,
