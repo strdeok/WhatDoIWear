@@ -141,18 +141,18 @@ function App() {
   }, [nowWeather]);
 
   // 모든 데이터가 로드되었는지 확인
-    // useEffect(() => {
-    //   if (
-    //     location !== prevLocation.current &&
-    //     address &&
-    //     xy &&
-    //     nowWeather &&
-    //     todayWeather
-    //   ) {
-    //     setLoading(false);
-    //   }
-    //   prevLocation.current = location;
-    // }, [location, address, xy, nowWeather, todayWeather]);
+    useEffect(() => {
+      if (
+        location !== prevLocation.current &&
+        address &&
+        xy &&
+        nowWeather &&
+        todayWeather
+      ) {
+        setLoading(false);
+      }
+      prevLocation.current = location;
+    }, [location, address, xy, nowWeather, todayWeather]);
 
   return (
     <>
