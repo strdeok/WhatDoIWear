@@ -5,14 +5,13 @@ export default function useGetAddress(
   location: {
     latitude: number;
     longitude: number;
-  },
+  } | null,
   setAddress: (newAddress: object) => void
 ) {
-  console.log(location)
   const getAddress = async () => {
     await axios
       .get(
-        `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${location.longitude}&y=${location.latitude}`,
+        `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${location?.longitude}&y=${location?.latitude}`,
         {
           headers: {
             Authorization: `KakaoAK ${KakaoKey}`,

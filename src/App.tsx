@@ -36,8 +36,10 @@ function App() {
   // react 훅
   const [activeModal, setActiveModal] = useState(false);
   const [active, setActive] = useState("now");
-  const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
-  const [loading, setLoading] = useState(true);
+  const [location, setLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   // 커스텀 훅
   const getAddress = useGetAddress(location, setAddress);
@@ -53,6 +55,7 @@ function App() {
   const recommendClothes = RecommendClothes(todayWeather, setClothes);
 
   const school = "송도1동";
+  const schoolLocation = { latitude: 37.375398, longitude: 126.632244 };
 
   // 현재 위치 가져오기
   useEffect(() => {
@@ -63,22 +66,18 @@ function App() {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           });
-          setLoading(false);
         },
         (error) => {
           console.error("위치 정보를 가져올 수 없습니다:", error);
-          setLoading(false);
         }
       );
     }
-  }, []);
+  }, [active]);
 
   // 위도 경도 토대로 주소 받아오기
   useEffect(() => {
-    if (!loading && location.latitude !== 0 && location.longitude !== 0) {
-      getAddress();
-    }
-  }, [location, loading]);
+    getAddress();
+  }, [location]);
 
   // 주소를 토대로 XY값 받기기
   useEffect(() => {
