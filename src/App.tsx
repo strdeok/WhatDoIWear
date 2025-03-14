@@ -55,7 +55,7 @@ function App() {
   const recommendClothes = RecommendClothes(todayWeather, setClothes);
 
   const school = "송도1동";
-  const schoolLocation = { latitude: 37.375398, longitude: 126.632244 };
+  // const schoolLocation = { latitude: 37.375398, longitude: 126.632244 };
 
   // 현재 위치 가져오기
   useEffect(() => {
