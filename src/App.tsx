@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStore } from "./zustand/state";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoWaterOutline } from "react-icons/io5";
@@ -41,6 +41,7 @@ function App() {
     latitude: number;
     longitude: number;
   } | null>(null);
+  const prevLocation = useRef(location);
   const [loading, setLoading] = useState(true);
 
   // 커스텀 훅
@@ -141,10 +142,16 @@ function App() {
 
   // 모든 데이터가 로드되었는지 확인
   useEffect(() => {
-    console.log(loading);
-    if (location && address && xy && nowWeather && todayWeather) {
+    if (
+      location !== prevLocation.current &&
+      address &&
+      xy &&
+      nowWeather &&
+      todayWeather
+    ) {
       setLoading(false);
     }
+    prevLocation.current = location;
   }, [location, address, xy, nowWeather, todayWeather]);
 
   return (
@@ -221,8 +228,10 @@ function App() {
                 active == "now" ? "bg-[#1a81a9] border-none" : "border-white"
               }`}
               onClick={() => {
-                setActive("now");
-                setLoading(true);
+                if (active === "school") {
+                  setActive("now");
+                  setLoading(true);
+                }
               }}
             >
               현재 지역 날씨
@@ -233,8 +242,10 @@ function App() {
                 active != "now" ? "bg-[#1a81a9] border-none" : "border-white"
               }`}
               onClick={() => {
-                setActive("school");
-                setLoading(true);
+                if (active === "now") {
+                  setActive("school");
+                  setLoading(true);
+                }
               }}
             >
               현재 학교 날씨
