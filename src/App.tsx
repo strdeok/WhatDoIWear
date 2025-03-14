@@ -141,23 +141,23 @@ function App() {
   }, [nowWeather]);
 
   // 모든 데이터가 로드되었는지 확인
-  useEffect(() => {
-    if (
-      location !== prevLocation.current &&
-      address &&
-      xy &&
-      nowWeather &&
-      todayWeather
-    ) {
-      setLoading(false);
-    }
-    prevLocation.current = location;
-  }, [location, address, xy, nowWeather, todayWeather]);
+    // useEffect(() => {
+    //   if (
+    //     location !== prevLocation.current &&
+    //     address &&
+    //     xy &&
+    //     nowWeather &&
+    //     todayWeather
+    //   ) {
+    //     setLoading(false);
+    //   }
+    //   prevLocation.current = location;
+    // }, [location, address, xy, nowWeather, todayWeather]);
 
   return (
     <>
-      {loading ? <Loading /> : null}
-      <div className="relative w-full pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-x-hidden min-h-[45rem]">
+      <div className="relative w-full h-full pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-x-hidden min-h-[45rem]">
+        {loading ? <Loading /> : null}
         <main
           className="relative flex flex-col w-full max-w-xs items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl mt-10 
         "
@@ -254,8 +254,8 @@ function App() {
         ) : null}
         <footer className="text-xs text-blue-300 mt-8">
           <p>출처: 기상청 | 한국환경공단 | 카카오 API</p>
-          <a href="https://github.com/strdeok">
-            제작: https://github.com/strdeok
+          <a href="https://open.kakao.com/o/sEt8gDlh">
+            문의: https://open.kakao.com/o/sEt8gDlh
           </a>
         </footer>
       </div>
