@@ -214,31 +214,33 @@ function App() {
             })}
           </div>
         </main>
-        <div className="max-w-xs mt-14 w-full flex flex-row gap-3 justify-between">
-          <button
-            className={`border rounded-lg p-2 shadow-md w-1/2 ${
-              active == "now" ? "bg-[#1a81a9] border-none" : "border-white"
-            }`}
-            onClick={() => {
-              setActive("now");
-              setLoading(true);
-            }}
-          >
-            현재 지역 날씨
-          </button>
+        {loading ? (
+          <div className="max-w-xs mt-14 w-full flex flex-row gap-3 justify-between">
+            <button
+              className={`border rounded-lg p-2 shadow-md w-1/2 ${
+                active == "now" ? "bg-[#1a81a9] border-none" : "border-white"
+              }`}
+              onClick={() => {
+                setActive("now");
+                setLoading(true);
+              }}
+            >
+              현재 지역 날씨
+            </button>
 
-          <button
-            className={`border rounded-lg p-2 shadow-md w-1/2 ${
-              active != "now" ? "bg-[#1a81a9] border-none" : "border-white"
-            }`}
-            onClick={() => {
-              setActive("school");
-              setLoading(true);
-            }}
-          >
-            현재 학교 날씨
-          </button>
-        </div>
+            <button
+              className={`border rounded-lg p-2 shadow-md w-1/2 ${
+                active != "now" ? "bg-[#1a81a9] border-none" : "border-white"
+              }`}
+              onClick={() => {
+                setActive("school");
+                setLoading(true);
+              }}
+            >
+              현재 학교 날씨
+            </button>
+          </div>
+        ) : null}
         <footer className="text-xs text-blue-300 mt-8">
           <p>출처: 기상청 | 한국환경공단 | 카카오 API</p>
           <a href="https://github.com/strdeok">
