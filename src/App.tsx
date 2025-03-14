@@ -16,6 +16,7 @@ import CalculateWinterFeelTemperature from "./util/CalculateWinterFeelTemperatur
 import dayjs from "dayjs";
 import GetMicroDust from "./util/GetMicroDust";
 import GetKakaoMap from "./util/GetKakaoMap";
+import Loading from "./components/Loading";
 
 function App() {
   const {
@@ -40,6 +41,7 @@ function App() {
     latitude: number;
     longitude: number;
   } | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // 커스텀 훅
   const getAddress = useGetAddress(location, setAddress);
@@ -130,101 +132,111 @@ function App() {
     }
   }, [nowWeather]);
 
+    // **모든 데이터가 로드되었는지 확인하고, 로딩 해제**
+    useEffect(() => {
+      if (location && address && xy && nowWeather && todayWeather) {
+        setLoading(false);
+      }
+    }, [location, address, xy, nowWeather, todayWeather]);
+
   return (
-    <div className="relative w-full  pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-x-hidden min-h-[45rem]">
-      <main
-        className="relative flex flex-col w-full max-w-xs items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl mt-10 
-      "
-      >
-        <GetKakaoMap location={location} />
-        <div>
-          <div>{active === "now" ? address.depth_3 : school}</div>
-          <div className="text-xl font-semibold">지금 날씨</div>
-          <p className="text-5xl">{nowWeather.temperature}℃</p>
-          <br />
+    <>
+      {loading ? <Loading /> : null}
+      <div className="relative w-full pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-x-hidden min-h-[45rem]">
+        <main
+          className="relative flex flex-col w-full max-w-xs items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl mt-10 
+        "
+        >
+          <GetKakaoMap location={location} />
+          <div>
+            <div>{active === "now" ? address.depth_3 : school}</div>
+            <div className="text-xl font-semibold">지금 날씨</div>
+            <p className="text-5xl">{nowWeather.temperature}℃</p>
+            <br />
 
-          <p className="text-sm">체감온도: {feelTemperature}℃</p>
-          <br />
+            <p className="text-sm">체감온도: {feelTemperature}℃</p>
+            <br />
 
-          <div className="flex flex-col gap-1">
-            <p className="flex gap-4 items-center justify-center">
-              <IoWaterOutline className="text-xl" />
-              {nowWeather.humidity}%
-            </p>
-            <p className="flex gap-4 items-center justify-center">
-              <GiWindsock className="text-xl" />
-              {nowWeather.wind}m/s
-            </p>
-            <p className="flex gap-4 items-center justify-center">
-              {nowWeather.rain === "0" ? (
-                <>{nowWeather.rainType}</>
-              ) : (
-                <>
-                  {nowWeather.rainType}
-                  {nowWeather.rain}mm
-                </>
-              )}
-            </p>
-          </div>
-        </div>
-
-        <div>{GetMicroDust()}</div>
-
-        <div className="text-xs">
-          <div className="text-sm">오늘 날씨</div>
-          <p>
-            최고 {todayWeather.highestTemp}℃ / 최저 {todayWeather.lowestTemp}℃
-          </p>
-        </div>
-
-        <div>
-          <div className="flex flex-row items-center">
-            <div className="text-xl mr-2">추천 옷차림</div>
-            <div
-              onClick={() => {
-                setActiveModal(true);
-              }}
-            >
-              <IoIosInformationCircleOutline />
+            <div className="flex flex-col gap-1">
+              <p className="flex gap-4 items-center justify-center">
+                <IoWaterOutline className="text-xl" />
+                {nowWeather.humidity}%
+              </p>
+              <p className="flex gap-4 items-center justify-center">
+                <GiWindsock className="text-xl" />
+                {nowWeather.wind}m/s
+              </p>
+              <p className="flex gap-4 items-center justify-center">
+                {nowWeather.rain === "0" ? (
+                  <>{nowWeather.rainType}</>
+                ) : (
+                  <>
+                    {nowWeather.rainType}
+                    {nowWeather.rain}mm
+                  </>
+                )}
+              </p>
             </div>
           </div>
-          {activeModal ? <Modal setActiveModal={setActiveModal} /> : null}
 
-          {clothes.map((element: string) => {
-            return <div>{element} </div>;
-          })}
+          <div>{GetMicroDust()}</div>
+
+          <div className="text-xs">
+            <div className="text-sm">오늘 날씨</div>
+            <p>
+              최고 {todayWeather.highestTemp}℃ / 최저 {todayWeather.lowestTemp}℃
+            </p>
+          </div>
+
+          <div>
+            <div className="flex flex-row items-center">
+              <div className="text-xl mr-2">추천 옷차림</div>
+              <div
+                onClick={() => {
+                  setActiveModal(true);
+                }}
+              >
+                <IoIosInformationCircleOutline />
+              </div>
+            </div>
+            {activeModal ? <Modal setActiveModal={setActiveModal} /> : null}
+
+            {clothes.map((element: string) => {
+              return <div>{element} </div>;
+            })}
+          </div>
+        </main>
+        <div className="max-w-xs mt-14 w-full flex flex-row gap-3 justify-between">
+          <button
+            className={`border rounded-lg p-2 shadow-md w-1/2 ${
+              active == "now" ? "bg-[#1a81a9] border-none" : "border-white"
+            }`}
+            onClick={() => {
+              setActive("now");
+            }}
+          >
+            현재 지역 날씨
+          </button>
+
+          <button
+            className={`border rounded-lg p-2 shadow-md w-1/2 ${
+              active != "now" ? "bg-[#1a81a9] border-none" : "border-white"
+            }`}
+            onClick={() => {
+              setActive("school");
+            }}
+          >
+            현재 학교 날씨
+          </button>
         </div>
-      </main>
-      <div className="max-w-xs mt-14 w-full flex flex-row gap-3 justify-between">
-        <button
-          className={`border rounded-lg p-2 shadow-md w-1/2 ${
-            active == "now" ? "bg-[#1a81a9] border-none" : "border-white"
-          }`}
-          onClick={() => {
-            setActive("now");
-          }}
-        >
-          현재 지역 날씨
-        </button>
-
-        <button
-          className={`border rounded-lg p-2 shadow-md w-1/2 ${
-            active != "now" ? "bg-[#1a81a9] border-none" : "border-white"
-          }`}
-          onClick={() => {
-            setActive("school");
-          }}
-        >
-          현재 학교 날씨
-        </button>
+        <footer className="text-xs text-blue-300 mt-8">
+          <p>출처: 기상청 | 한국환경공단 | 카카오 API</p>
+          <a href="https://github.com/strdeok">
+            제작: https://github.com/strdeok
+          </a>
+        </footer>
       </div>
-      <footer className="text-xs text-blue-300 mt-8">
-        <p>출처: 기상청 | 한국환경공단 | 카카오 API</p>
-        <a href="https://github.com/strdeok">
-          제작: https://github.com/strdeok
-        </a>
-      </footer>
-    </div>
+    </>
   );
 }
 
