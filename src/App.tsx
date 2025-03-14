@@ -18,7 +18,6 @@ import GetMicroDust from "./util/GetMicroDust";
 import GetKakaoMap from "./util/GetKakaoMap";
 import dayjs from "dayjs";
 
-
 function App() {
   const {
     address,
@@ -71,9 +70,6 @@ function App() {
             location?.latitude !== position.coords.latitude &&
             location?.longitude !== position.coords.longitude
           ) {
-            setLoading(true);
-          }
-          {
             setLocation({
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
@@ -145,7 +141,7 @@ function App() {
 
   // 모든 데이터가 로드되었는지 확인
   useEffect(() => {
-    console.log(loading)
+    console.log(loading);
     if (location && address && xy && nowWeather && todayWeather) {
       setLoading(false);
     }
@@ -225,6 +221,7 @@ function App() {
             }`}
             onClick={() => {
               setActive("now");
+              setLoading(true);
             }}
           >
             현재 지역 날씨
@@ -236,6 +233,7 @@ function App() {
             }`}
             onClick={() => {
               setActive("school");
+              setLoading(true);
             }}
           >
             현재 학교 날씨
