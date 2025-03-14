@@ -56,9 +56,11 @@ export default function GetMicroDust() {
         }&returnType=JSON&numOfRows=100&pageNo=1&umdName=${address.depth_3}`
       )
       .then((res) => {
-        console.log(res)
+        console.log(res);
         if (!res.data.response) {
-          alert("앗 오늘 할당량을 다 소진했어요!");
+          console.log("센터 XY 가져오기" + res);
+          console.log("할당량 소진");
+          return "서버오류"
         } else {
           const tmXY = {
             tmX: res.data.response.body.items[0].tmX,
