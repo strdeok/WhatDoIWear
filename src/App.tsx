@@ -66,10 +66,18 @@ function App() {
     } else {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
+          if (
+            location?.latitude !== position.coords.latitude &&
+            location?.longitude !== position.coords.longitude
+          ) {
+            setLoading(true);
+          }
+          {
+            setLocation({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            });
+          }
         },
         (error) => {
           console.error("위치 정보를 가져올 수 없습니다:", error);
@@ -136,6 +144,7 @@ function App() {
 
   // 모든 데이터가 로드되었는지 확인
   useEffect(() => {
+    console.log(loading)
     if (location && address && xy && nowWeather && todayWeather) {
       setLoading(false);
     }
