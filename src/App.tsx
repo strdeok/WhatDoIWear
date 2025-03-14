@@ -3,6 +3,8 @@ import { useStore } from "./zustand/state";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoWaterOutline } from "react-icons/io5";
 import { GiWindsock } from "react-icons/gi";
+import Loading from "./components/Loading";
+import Modal from "./components/Modal";
 import useGetAddress from "./util/GetAddress";
 import useGetXY from "./util/GetXY";
 import GetNowWeather from "./util/GetNowWeather";
@@ -10,13 +12,12 @@ import GetTodayWeather from "./util/GetTodayWeather";
 import GetNowSchoolWeather from "./util/GetNowSchoolWeather";
 import GetTodaySchoolWeather from "./util/GetTodaySchoolWeather";
 import RecommendClothes from "./util/RecommendClothes";
-import Modal from "./components/Modal";
 import CalculateSummerFeelTemperature from "./util/CalculateSummerFeelTemperature";
 import CalculateWinterFeelTemperature from "./util/CalculateWinterFeelTemperature";
-import dayjs from "dayjs";
 import GetMicroDust from "./util/GetMicroDust";
 import GetKakaoMap from "./util/GetKakaoMap";
-import Loading from "./components/Loading";
+import dayjs from "dayjs";
+
 
 function App() {
   const {
