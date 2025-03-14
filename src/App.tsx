@@ -57,11 +57,13 @@ function App() {
   const recommendClothes = RecommendClothes(todayWeather, setClothes);
 
   const school = "송도1동";
-  // const schoolLocation = { latitude: 37.375398, longitude: 126.632244 };
+  const schoolLocation = { latitude: 37.375398, longitude: 126.632244 };
 
   // 현재 위치 가져오기
   useEffect(() => {
-    if (navigator.geolocation) {
+    if (active === "school") {
+      setLocation(schoolLocation);
+    } else {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setLocation({
@@ -132,12 +134,12 @@ function App() {
     }
   }, [nowWeather]);
 
-    // **모든 데이터가 로드되었는지 확인하고, 로딩 해제**
-    useEffect(() => {
-      if (location && address && xy && nowWeather && todayWeather) {
-        setLoading(false);
-      }
-    }, [location, address, xy, nowWeather, todayWeather]);
+  // 모든 데이터가 로드되었는지 확인
+  useEffect(() => {
+    if (location && address && xy && nowWeather && todayWeather) {
+      setLoading(false);
+    }
+  }, [location, address, xy, nowWeather, todayWeather]);
 
   return (
     <>
