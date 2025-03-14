@@ -214,7 +214,7 @@ function App() {
             })}
           </div>
         </main>
-        {loading ? (
+        {!loading ? (
           <div className="max-w-xs mt-14 w-full flex flex-row gap-3 justify-between">
             <button
               className={`border rounded-lg p-2 shadow-md w-1/2 ${
