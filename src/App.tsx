@@ -37,6 +37,7 @@ function App() {
   const [activeModal, setActiveModal] = useState(false);
   const [active, setActive] = useState("now");
   const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
+  const [loading, setLoading] = useState(true);
 
   // 커스텀 훅
   const getAddress = useGetAddress(location, setAddress);
@@ -53,23 +54,31 @@ function App() {
 
   const school = "송도1동";
 
-  // 현재 위도 경도 토대로 주소 받기
+  // 현재 위치 가져오기
   useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        if (
-          location.latitude !== position.coords.latitude &&
-          location.longitude !== position.coords.longitude
-        ) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
           setLocation({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           });
+          setLoading(false);
+        },
+        (error) => {
+          console.error("위치 정보를 가져올 수 없습니다:", error);
+          setLoading(false);
         }
-      });
+      );
     }
-    getAddress();
-  }, [location]);
+  }, []);
+
+  // 위도 경도 토대로 주소 받아오기
+  useEffect(() => {
+    if (!loading && location.latitude !== 0 && location.longitude !== 0) {
+      getAddress();
+    }
+  }, [location, loading]);
 
   // 주소를 토대로 XY값 받기기
   useEffect(() => {
