@@ -152,7 +152,7 @@ function App() {
         setLoading(false);
       }
       prevLocation.current = location;
-    }, [location, address, xy, nowWeather, todayWeather]);
+    }, [location, nowWeather]);
 
   return (
     <>
