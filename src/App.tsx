@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStore } from "./zustand/state";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoWaterOutline } from "react-icons/io5";
@@ -41,6 +41,7 @@ function App() {
     latitude: number;
     longitude: number;
   } | null>(null);
+  const prevLocation = useRef(location);
   const [loading, setLoading] = useState(true);
 
   // 커스텀 훅
@@ -59,72 +60,29 @@ function App() {
   const school = "송도1동";
   const schoolLocation = { latitude: 37.376786, longitude: 126.634701 };
 
-  // 로딩 상태 최적화
-  const isDataReady = useMemo(() => {
-    return !!(
-      location &&
-      address &&
-      Object.keys(address).length > 0 &&
-      xy &&
-      xy.x !== 0 &&
-      xy.y !== 0 &&
-      nowWeather &&
-      todayWeather
-    );
-  }, [location, address, xy, nowWeather, todayWeather]);
-
+  // 현재 위치 가져오기
   useEffect(() => {
-    if (isDataReady) {
-      setLoading(false);
-    }
-  }, [isDataReady]);
-
-  // 위치 정보 가져오기 최적화
-  useEffect(() => {
-    const getLocationData = async () => {
-      if (active === "school") {
-        setLocation(schoolLocation);
-        return;
-      }
-
-      try {
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject);
-        });
-
-        const newLocation = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
-
-        if (
-          location?.latitude !== newLocation.latitude ||
-          location?.longitude !== newLocation.longitude
-        ) {
-          setLocation(newLocation);
+    if (active === "school") {
+      setLocation(schoolLocation);
+    } else {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          if (
+            location?.latitude !== position.coords.latitude &&
+            location?.longitude !== position.coords.longitude
+          ) {
+            setLocation({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            });
+          }
+        },
+        (error) => {
+          console.error("위치 정보를 가져올 수 없습니다:", error);
         }
-      } catch (error) {
-        console.error("위치 정보를 가져올 수 없습니다:", error);
-      }
-    };
-
-    getLocationData();
+      );
+    }
   }, [active]);
-
-  // 병렬로 데이터 가져오기
-  useEffect(() => {
-    if (xy && xy.x !== 0 && xy.y !== 0) {
-      const fetchWeatherData = async () => {
-        if (active === "now") {
-          await Promise.all([getNowWeather(), getTodayWeather()]);
-        } else {
-          await Promise.all([getNowSchoolWeather(), getTodaySchoolWeather()]);
-        }
-      };
-      
-      fetchWeatherData();
-    }
-  }, [xy, active]);
 
   // 위도 경도 토대로 주소 받아오기
   useEffect(() => {
@@ -137,6 +95,19 @@ function App() {
       getXY();
     }
   }, [address]);
+
+  // 현재 지역 날씨 || 현재 학교 날씨
+  useEffect(() => {
+    if (xy && xy.x !== 0 && xy.y !== 0) {
+      if (active === "now") {
+        getNowWeather();
+        getTodayWeather();
+      } else {
+        getTodaySchoolWeather();
+        getNowSchoolWeather();
+      }
+    }
+  }, [xy, active]);
 
   // 옷 추천하기
   useEffect(() => {
@@ -168,6 +139,20 @@ function App() {
       );
     }
   }, [nowWeather]);
+
+  // 모든 데이터가 로드되었는지 확인
+    useEffect(() => {
+      if (
+        location !== prevLocation.current &&
+        address &&
+        xy &&
+        nowWeather &&
+        todayWeather
+      ) {
+        setLoading(false);
+      }
+      prevLocation.current = location;
+    }, [location, address, xy, nowWeather, todayWeather]);
 
   return (
     <>
