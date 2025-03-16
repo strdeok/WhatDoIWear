@@ -14,7 +14,7 @@ import GetTodaySchoolWeather from "./util/GetTodaySchoolWeather";
 import RecommendClothes from "./util/RecommendClothes";
 import CalculateSummerFeelTemperature from "./util/CalculateSummerFeelTemperature";
 import CalculateWinterFeelTemperature from "./util/CalculateWinterFeelTemperature";
-import GetMicroDust from "./util/GetMicroDust";
+import GetMicroDust from "./components/GetMicroDust";
 import GetKakaoMap from "./util/GetKakaoMap";
 import dayjs from "dayjs";
 

@@ -53,7 +53,7 @@ export default function GetMicroDust() {
       .get(
         `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt?serviceKey=${
           import.meta.env.VITE_PUBLIC_API_KEY
-        }&returnType=JSON&numOfRows=100&pageNo=1&umdName=${address.depth_3}`
+        }&returnType=JSON&numOfRows=5&pageNo=1&umdName=${address.depth_3}`
       )
       .then((res) => {
         console.log(res);
@@ -94,7 +94,7 @@ export default function GetMicroDust() {
       .get(
         `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${
           import.meta.env.VITE_PUBLIC_API_KEY
-        }&returnType=JSON&stationName=${measureCenter}&dataTerm=DAILY&pageNo=1&numOfRow=100&ver=1.3`
+        }&returnType=JSON&stationName=${measureCenter}&dataTerm=DAILY&pageNo=1&numOfRow=5&ver=1.3`
       )
       .then((res) => {
         const recentResult = res.data.response.body.items[0];
