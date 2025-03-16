@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useStore } from "./zustand/state";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoWaterOutline } from "react-icons/io5";
