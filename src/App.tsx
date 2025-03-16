@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect,  useState } from "react";
 import { useStore } from "./zustand/state";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoWaterOutline } from "react-icons/io5";
@@ -41,118 +41,85 @@ function App() {
     latitude: number;
     longitude: number;
   } | null>(null);
-  const prevLocation = useRef(location);
+
   const [loading, setLoading] = useState(true);
 
-  // 커스텀 훅
-  const getAddress = useGetAddress(location, setAddress);
-  const getNowWeather = GetNowWeather(date, xy, setNowWeather, editedTime);
-  const getTodayWeather = GetTodayWeather(date, xy, setTodayWeather);
-  const getNowSchoolWeather = GetNowSchoolWeather(
-    date,
-    setNowWeather,
-    editedTime
-  );
-  const getTodaySchoolWeather = GetTodaySchoolWeather(date, setTodayWeather);
-  const getXY = useGetXY(address, setXY);
-  const recommendClothes = RecommendClothes(todayWeather, setClothes);
+
 
   const school = "송도1동";
   const schoolLocation = { latitude: 37.376786, longitude: 126.634701 };
 
-  // 현재 위치 가져오기
   useEffect(() => {
     if (active === "school") {
       setLocation(schoolLocation);
     } else {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          if (
-            location?.latitude !== position.coords.latitude &&
-            location?.longitude !== position.coords.longitude
-          ) {
-            setLocation({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-            });
-          }
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
         },
-        (error) => {
-          console.error("위치 정보를 가져올 수 없습니다:", error);
-        }
+        (error) => console.error("위치 정보를 가져올 수 없습니다:", error)
       );
     }
   }, [active]);
 
-  // 위도 경도 토대로 주소 받아오기
   useEffect(() => {
-    getAddress();
+    if (!location) return;
+    setLoading(true);
+
+    const fetchData = async () => {
+      await Promise.all([
+        useGetAddress(location, setAddress),
+        useGetXY(address, setXY),
+      ]);
+    };
+    fetchData();
   }, [location]);
 
-  // 주소를 토대로 XY값 받기기
   useEffect(() => {
-    if (address && Object.keys(address).length > 0) {
-      getXY();
-    }
-  }, [address]);
+    if (!xy || xy.x === 0 || xy.y === 0) return;
+    setLoading(true);
 
-  // 현재 지역 날씨 || 현재 학교 날씨
-  useEffect(() => {
-    if (xy && xy.x !== 0 && xy.y !== 0) {
+    const fetchWeather = async () => {
       if (active === "now") {
-        getNowWeather();
-        getTodayWeather();
+        await Promise.all([
+          GetNowWeather(date, xy, setNowWeather, editedTime),
+          GetTodayWeather(date, xy, setTodayWeather),
+        ]);
       } else {
-        getTodaySchoolWeather();
-        getNowSchoolWeather();
+        await Promise.all([
+          GetNowSchoolWeather(date, setNowWeather, editedTime),
+          GetTodaySchoolWeather(date, setTodayWeather),
+        ]);
       }
-    }
+      setLoading(false);
+    };
+    fetchWeather();
   }, [xy, active]);
 
-  // 옷 추천하기
   useEffect(() => {
-    recommendClothes();
-  }, [todayWeather, setTodayWeather]);
+    if (!todayWeather) return;
+    RecommendClothes(todayWeather, setClothes);
+  }, [todayWeather]);
 
-  // 체감온도 계산하기
   const [feelTemperature, setFeelTemperature] = useState<number>();
   useEffect(() => {
+    if (!nowWeather) return;
     const month = Number(dayjs().format("MM"));
-    function getFeelsLike(
-      temp: number,
-      windSpeed: number,
-      humidity: number
-    ): number {
-      if (month <= 9 || month >= 5)
-        return CalculateSummerFeelTemperature(temp, windSpeed);
-      else if (month >= 10 || month <= 4)
-        return CalculateWinterFeelTemperature(temp, humidity);
-      else return temp;
-    }
-    if (nowWeather) {
-      setFeelTemperature(
-        getFeelsLike(
-          nowWeather.temperature,
-          nowWeather.wind,
-          nowWeather.humidity
-        )
-      );
-    }
+    setFeelTemperature(
+      month <= 9 || month >= 5
+        ? CalculateSummerFeelTemperature(
+            nowWeather.temperature,
+            nowWeather.wind
+          )
+        : CalculateWinterFeelTemperature(
+            nowWeather.temperature,
+            nowWeather.humidity
+          )
+    );
   }, [nowWeather]);
-
-  // 모든 데이터가 로드되었는지 확인
-    useEffect(() => {
-      if (
-        location !== prevLocation.current &&
-        address &&
-        xy &&
-        nowWeather &&
-        todayWeather
-      ) {
-        setLoading(false);
-      }
-      prevLocation.current = location;
-    }, [location, nowWeather]);
 
   return (
     <>
