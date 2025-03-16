@@ -41,7 +41,6 @@ function App() {
     latitude: number;
     longitude: number;
   } | null>(null);
-  const prevLocation = useRef(location);
   const [loading, setLoading] = useState(true);
 
   // 커스텀 훅
