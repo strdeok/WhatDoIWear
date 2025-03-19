@@ -59,12 +59,14 @@ function App() {
   }
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchLocation = async () => {
       try {
         // 1️⃣ 위치 정보 가져오기
+
         let currentLocation = schoolLocation;
 
-        if (active === "now") {
+        if (!localStorage.getItem("location")) {
+          console.log("로컬스토리지에 값이 없음")
           const position = await new Promise<GeolocationPosition>(
             (resolve, reject) => {
               navigator.geolocation.getCurrentPosition(resolve, reject);
@@ -74,14 +76,27 @@ function App() {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           };
-        }
-        setLocation(currentLocation); 
+          localStorage.setItem("location", JSON.stringify(currentLocation));
+          setLocation(currentLocation);
+        } else {
+          console.log("로컬스토리지에 값이 있음")
+          if (active === "now") {
+            const nowLocation = JSON.parse(
+              localStorage.getItem("location") as string
+            );
+            console.log(nowLocation)
+            setLocation(nowLocation);
+          } else {
+            console.log(schoolLocation)
+            setLocation(schoolLocation);
+          }
+        } 
       } catch (error) {
         console.error("위치 정보 가져오기 중 오류 발생:", error);
       }
     };
 
-    fetchData();
+    fetchLocation();
   }, [active]); // 위치 정보만 업데이트됨
 
   useEffect(() => {
