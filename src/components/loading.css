@@ -50,7 +50,7 @@
   box-sizing: border-box;
 }
 
-@supports (-webkit-touch-callout: none) {
+@supports (-webkit-appearance: none) {
   .loadingCloud {
     background-color: rgba(255, 255, 255, 0);
     background-image: -webkit-radial-gradient(
