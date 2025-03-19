@@ -18,6 +18,20 @@ import GetMicroDust from "./components/GetMicroDust";
 import GetKakaoMap from "./util/GetKakaoMap";
 import dayjs from "dayjs";
 
+interface NowWeather {
+  temperature: string;
+  humidity: string;
+  wind: string;
+  rain: string;
+  rainType: string;
+}
+
+interface TodayWeather {
+  highestTemp: string;
+  lowestTemp: string;
+  todayWind: string;
+}
+
 function App() {
   const {
     address,
@@ -45,21 +59,17 @@ function App() {
   const school = "송도1동";
   const schoolLocation = { latitude: 37.376786, longitude: 126.634701 };
 
-  interface NowWeather {
-    temperature: string;
-    humidity: string;
-    wind: string;
-    rain: string;
-    rainType: string;
-  }
+  const midNight = dayjs().endOf("day");
+  const now = dayjs();
 
-  interface TodayWeather {
-    highestTemp: string;
-    lowestTemp: string;
-    todayWind: string;
-  }
+  const isExpired = () => {
+    if (now.isAfter(midNight)) {
+      localStorage.removeItem("todayWeather");
+      localStorage.removeItem("todaySchoolWeather");
+    }
+  };
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log(`.           |
 　╲　　　　　　　　　　　╱
 　　　　　　　　　/
@@ -70,9 +80,9 @@ function App() {
 　╱　　/               .
 　　╱　　　　　　　　╲
 　　　　　/　|　　　
-　　　　　　　.`)
-    console.log("source code: https://github.com/strdeok/WhatDoIWear")
-  }, [])
+　　　　　　　.`);
+    console.log("source code: https://github.com/strdeok/WhatDoIWear");
+  }, []);
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -130,6 +140,8 @@ function App() {
   useEffect(() => {
     if (!location) return;
 
+    isExpired();
+
     const getAddressData = new Promise((resolve, reject) => {
       useGetAddress(location)
         .then((addressData) => {
@@ -153,21 +165,56 @@ function App() {
         return useGetXY(typedAddress);
       })
       .then(
-        (xy: { x: number; y: number }): Promise<[NowWeather, TodayWeather]> => {
+        (xy: {
+          x: number;
+          y: number;
+        }): Promise<[NowWeather, TodayWeather, string?]> => {
           if (active === "now") {
-            return Promise.all([
-              GetNowWeather(date, xy, editedTime) as Promise<NowWeather>,
-              GetTodayWeather(date, xy) as Promise<TodayWeather>,
-            ]);
+            if (!localStorage.getItem("todayWeather")) {
+              return Promise.all([
+                GetNowWeather(date, xy, editedTime) as Promise<NowWeather>,
+                GetTodayWeather(date, xy) as Promise<TodayWeather>,
+              ]);
+            } else {
+              return Promise.all([
+                GetNowWeather(date, xy, editedTime) as Promise<NowWeather>,
+                JSON.parse(localStorage.getItem("todayWeather") as string),
+              ]);
+            }
           } else {
-            return Promise.all([
-              GetNowSchoolWeather(date, editedTime) as Promise<NowWeather>,
-              GetTodaySchoolWeather(date) as Promise<TodayWeather>,
-            ]);
+            if (!localStorage.getItem("todaySchoolWeather")) {
+              return Promise.all([
+                GetNowSchoolWeather(date, editedTime) as Promise<NowWeather>,
+                GetTodaySchoolWeather(date) as Promise<TodayWeather>,
+              ]);
+            } else {
+              return Promise.all([
+                GetNowSchoolWeather(date, editedTime) as Promise<NowWeather>,
+                JSON.parse(
+                  localStorage.getItem("todaySchoolWeather") as string
+                ),
+              ]);
+            }
           }
         }
       )
       .then(([getNowWeather, getTodayWeather]) => {
+        if (active === "now") {
+          if (!localStorage.getItem("todayWeather")) {
+            localStorage.setItem(
+              "todayWeather",
+              JSON.stringify(getTodayWeather)
+            );
+          }
+        } else {
+          if (!localStorage.getItem("todaySchoolWeather")) {
+            localStorage.setItem(
+              "todaySchoolWeather",
+              JSON.stringify(getTodayWeather)
+            );
+          }
+        }
+
         setNowWeather(getNowWeather);
         setTodayWeather(getTodayWeather);
 
