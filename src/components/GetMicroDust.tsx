@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
-import { useStore } from "../zustand/state";
 import { WiDust } from "react-icons/wi";
 import { IoIosInformationCircleOutline, IoMdClose } from "react-icons/io";
 import { RiSurgicalMaskLine } from "react-icons/ri";
@@ -19,13 +18,11 @@ interface MicroDust {
   dubleMicroDustGrade: string | undefined;
 }
 
-export default function GetMicroDust() {
-  const { address }: any = useStore();
-  const [tmXY, setTmXY] = useState<TMXY>({
-    tmX: 0,
-    tmY: 0,
-  });
-  const [measureCenter, setMeasureCenter] = useState("");
+export default function GetMicroDust({
+  address,
+}: {
+  address: { depth_3: string };
+}) {
   const [microDust, setMicroDust] = useState<MicroDust>({
     presentTime: "",
     microDust: "",
@@ -48,94 +45,71 @@ export default function GetMicroDust() {
     }
   };
 
-  const getMesureCenterXY = () => {
-    axios
-      .get(
-        `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt?serviceKey=${
-          import.meta.env.VITE_PUBLIC_API_KEY
-        }&returnType=JSON&numOfRows=5&pageNo=1&umdName=${address.depth_3}`
-      )
-      .then((res) => {
-        console.log(res);
-        if (!res.data.response) {
-          console.log("센터 XY 가져오기" + res);
-          console.log("할당량 소진");
-          return "서버오류"
-        } else {
-          const tmXY = {
-            tmX: res.data.response.body.items[0].tmX,
-            tmY: res.data.response.body.items[0].tmY,
-          };
-          setTmXY(tmXY);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  const getMesureCenterXY = async () => {
+    const res = await axios.get(
+      `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt?serviceKey=${
+        import.meta.env.VITE_PUBLIC_API_KEY
+      }&returnType=JSON&numOfRows=100&pageNo=1&umdName=${address.depth_3}`
+    );
+
+    console.log(res);
+    if (!res.data.response) {
+      return null;
+    } else {
+      const tmXY: TMXY = {
+        tmX: res.data.response.body.items[0].tmX,
+        tmY: res.data.response.body.items[0].tmY,
+      };
+      return tmXY;
+    }
   };
 
-  const getMesureCenterName = () => {
-    axios
-      .get(
-        `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${
-          import.meta.env.VITE_PUBLIC_API_KEY
-        }&returnType=JSON&tmX=${tmXY.tmX}&tmY=${tmXY.tmY}&ver=1.1`
-      )
-      .then((res) => {
-        setMeasureCenter(res.data.response.body.items[0].stationName);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  const getMesureCenterName = async (tmXY: TMXY) => {
+    const res = await axios.get(
+      `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${
+        import.meta.env.VITE_PUBLIC_API_KEY
+      }&returnType=JSON&tmX=${tmXY.tmX}&tmY=${tmXY.tmY}&ver=1.1`
+    );
+    return res.data.response.body.items[0].stationName;
   };
 
-  const getMicroDust = () => {
-    axios
-      .get(
-        `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${
-          import.meta.env.VITE_PUBLIC_API_KEY
-        }&returnType=JSON&stationName=${measureCenter}&dataTerm=DAILY&pageNo=1&numOfRow=5&ver=1.3`
-      )
-      .then((res) => {
-        const recentResult = res.data.response.body.items[0];
-        const presentTime = dayjs(recentResult.dataTime).format("HH:mm");
-        const microDust = recentResult.pm10Value;
-        const microDustGrade = measureDustGrade(recentResult.pm10Grade1h);
-        const dubleMicroDust = recentResult.pm25Value;
-        const dubleMicroDustGrade = measureDustGrade(recentResult.pm25Grade1h);
-        // grade 1: 좋음 / 2: 보통 / 3: 나쁨 / 4: 매우 나쁨
-        const microDustData = {
-          presentTime,
-          microDust,
-          microDustGrade,
-          dubleMicroDust,
-          dubleMicroDustGrade,
-        };
+  const getMicroDust = async (measureCenter: string) => {
+    const res = await axios.get(
+      `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${
+        import.meta.env.VITE_PUBLIC_API_KEY
+      }&returnType=JSON&stationName=${measureCenter}&dataTerm=DAILY&pageNo=1&numOfRow=10&ver=1.3`
+    );
 
-        setMicroDust(microDustData);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const recentResult = res.data.response.body.items[0];
+    const presentTime = dayjs(recentResult.dataTime).format("HH:mm");
+    const microDust = recentResult.pm10Value;
+    const microDustGrade = measureDustGrade(recentResult.pm10Grade1h);
+    const dubleMicroDust = recentResult.pm25Value;
+    const dubleMicroDustGrade = measureDustGrade(recentResult.pm25Grade1h);
+    // grade 1: 좋음 / 2: 보통 / 3: 나쁨 / 4: 매우 나쁨
+    const microDustData = {
+      presentTime,
+      microDust,
+      microDustGrade,
+      dubleMicroDust,
+      dubleMicroDustGrade,
+    };
+    setMicroDust( microDustData);
   };
 
   useEffect(() => {
-    if (address.depth_3 !== "") {
-      getMesureCenterXY();
-    }
+    const getCenterXY = new Promise<TMXY | null>((resolve) => {
+      resolve(getMesureCenterXY());
+    });
+
+    getCenterXY
+      .then((tmXY): Promise<string> => {
+        return getMesureCenterName(tmXY as TMXY);
+      })
+      .then((measureCenterName) => {
+        getMicroDust(measureCenterName);
+      });
   }, [address]);
-
-  useEffect(() => {
-    if (tmXY.tmX !== 0) {
-      getMesureCenterName();
-    }
-  }, [tmXY]);
-
-  useEffect(() => {
-    if (measureCenter !== "") {
-      getMicroDust();
-    }
-  }, [measureCenter]);
 
   const EquipmentForMicroDust = () => {
     switch (microDust.microDustGrade || microDust.dubleMicroDustGrade) {

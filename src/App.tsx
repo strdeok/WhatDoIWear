@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "./zustand/state";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoWaterOutline } from "react-icons/io5";
@@ -22,8 +22,6 @@ function App() {
   const {
     address,
     setAddress,
-    xy,
-    setXY,
     nowWeather,
     setNowWeather,
     date,
@@ -41,118 +39,150 @@ function App() {
     latitude: number;
     longitude: number;
   } | null>(null);
-  const prevLocation = useRef(location);
+  const [feelsLikeTemperature, setFeelsLikeTemperature] = useState(0);
   const [loading, setLoading] = useState(true);
-
-  // 커스텀 훅
-  const getAddress = useGetAddress(location, setAddress);
-  const getNowWeather = GetNowWeather(date, xy, setNowWeather, editedTime);
-  const getTodayWeather = GetTodayWeather(date, xy, setTodayWeather);
-  const getNowSchoolWeather = GetNowSchoolWeather(
-    date,
-    setNowWeather,
-    editedTime
-  );
-  const getTodaySchoolWeather = GetTodaySchoolWeather(date, setTodayWeather);
-  const getXY = useGetXY(address, setXY);
-  const recommendClothes = RecommendClothes(todayWeather, setClothes);
 
   const school = "송도1동";
   const schoolLocation = { latitude: 37.376786, longitude: 126.634701 };
 
-  // 현재 위치 가져오기
+  interface NowWeather {
+    temperature: string;
+    humidity: string;
+    wind: string;
+    rain: string;
+    rainType: string;
+  }
+
+  interface TodayWeather {
+    highestTemp: string;
+    lowestTemp: string;
+    todayWind: string;
+  }
+
   useEffect(() => {
-    if (active === "school") {
-      setLocation(schoolLocation);
-    } else {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
+    const fetchLocation = async () => {
+      try {
+        let currentLocation = schoolLocation;
+
+        if (active === "school") {
+          setLocation(currentLocation);
+        } else if (!localStorage.getItem("location")) {
+          const position = await new Promise<GeolocationPosition>(
+            (resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject);
+            }
+          );
+          currentLocation = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+          localStorage.setItem("location", JSON.stringify(currentLocation));
+
+          setLocation(currentLocation);
+        } else {
+          const storedLocation = JSON.parse(
+            localStorage.getItem("location") as string
+          );
+
+          // 현재 위치 정보 가져오기
+          const position = await new Promise<GeolocationPosition>(
+            (resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject);
+            }
+          );
+
+          const newLocation = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+
           if (
-            location?.latitude !== position.coords.latitude &&
-            location?.longitude !== position.coords.longitude
+            storedLocation.latitude !== newLocation.latitude ||
+            storedLocation.longitude !== newLocation.longitude
           ) {
-            setLocation({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-            });
+            localStorage.setItem("location", JSON.stringify(newLocation));
+            setLocation(newLocation);
+          } else {
+            setLocation(storedLocation);
           }
-        },
-        (error) => {
-          console.error("위치 정보를 가져올 수 없습니다:", error);
         }
-      );
-    }
+      } catch (error) {}
+    };
+
+    fetchLocation();
   }, [active]);
 
-  // 위도 경도 토대로 주소 받아오기
   useEffect(() => {
-    getAddress();
-  }, [location]);
+    if (!location) return;
 
-  // 주소를 토대로 XY값 받기기
-  useEffect(() => {
-    if (address && Object.keys(address).length > 0) {
-      getXY();
-    }
-  }, [address]);
+    const getAddressData = new Promise((resolve, reject) => {
+      useGetAddress(location)
+        .then((addressData) => {
+          resolve(addressData);
+        })
+        .catch((error) => {
+          console.error("주소 데이터 가져오기 실패:", error);
+          reject(error);
+        });
+    });
 
-  // 현재 지역 날씨 || 현재 학교 날씨
-  useEffect(() => {
-    if (xy && xy.x !== 0 && xy.y !== 0) {
-      if (active === "now") {
-        getNowWeather();
-        getTodayWeather();
-      } else {
-        getTodaySchoolWeather();
-        getNowSchoolWeather();
-      }
-    }
-  }, [xy, active]);
+    getAddressData
+      .then((address): Promise<{ x: number; y: number }> => {
+        const typedAddress = address as {
+          depth_1: string;
+          depth_2: string;
+          depth_3: string;
+        };
 
-  // 옷 추천하기
-  useEffect(() => {
-    recommendClothes();
-  }, [todayWeather, setTodayWeather]);
+        setAddress(typedAddress);
+        return useGetXY(typedAddress);
+      })
+      .then(
+        (xy: { x: number; y: number }): Promise<[NowWeather, TodayWeather]> => {
+          if (active === "now") {
+            return Promise.all([
+              GetNowWeather(date, xy, editedTime) as Promise<NowWeather>,
+              GetTodayWeather(date, xy) as Promise<TodayWeather>,
+            ]);
+          } else {
+            return Promise.all([
+              GetNowSchoolWeather(date, editedTime) as Promise<NowWeather>,
+              GetTodaySchoolWeather(date) as Promise<TodayWeather>,
+            ]);
+          }
+        }
+      )
+      .then(([getNowWeather, getTodayWeather]) => {
+        setNowWeather(getNowWeather);
+        setTodayWeather(getTodayWeather);
 
-  // 체감온도 계산하기
-  const [feelTemperature, setFeelTemperature] = useState<number>();
-  useEffect(() => {
-    const month = Number(dayjs().format("MM"));
-    function getFeelsLike(
-      temp: number,
-      windSpeed: number,
-      humidity: number
-    ): number {
-      if (month <= 9 || month >= 5)
-        return CalculateSummerFeelTemperature(temp, windSpeed);
-      else if (month >= 10 || month <= 4)
-        return CalculateWinterFeelTemperature(temp, humidity);
-      else return temp;
-    }
-    if (nowWeather) {
-      setFeelTemperature(
-        getFeelsLike(
-          nowWeather.temperature,
-          nowWeather.wind,
-          nowWeather.humidity
-        )
-      );
-    }
-  }, [nowWeather]);
-
-  // 모든 데이터가 로드되었는지 확인
-    useEffect(() => {
-      if (
-        location !== prevLocation.current &&
-        address &&
-        xy &&
-        nowWeather &&
-        todayWeather
-      ) {
+        return [getNowWeather, getTodayWeather] as [NowWeather, TodayWeather];
+      })
+      .then(([getNowWeather, getTodayWeather]) => {
+        const month = Number(dayjs().format("MM"));
+        const feelsLike =
+          month <= 9 || month >= 5
+            ? CalculateSummerFeelTemperature(
+                getNowWeather.temperature,
+                getNowWeather.humidity
+              )
+            : CalculateWinterFeelTemperature(
+                getNowWeather.temperature,
+                getNowWeather.wind
+              );
+        setFeelsLikeTemperature(feelsLike);
+        return getTodayWeather;
+      })
+      .then((getTodayWeather) => {
+        return RecommendClothes(getTodayWeather);
+      })
+      .then((recommendClothes) => {
+        setClothes(recommendClothes);
+      })
+      .then(() => {
         setLoading(false);
-      }
-      prevLocation.current = location;
-    }, [location, address, xy, nowWeather, todayWeather]);
+      });
+  }, [location]);
 
   return (
     <>
@@ -169,7 +199,7 @@ function App() {
             <p className="text-5xl">{nowWeather.temperature}℃</p>
             <br />
 
-            <p className="text-sm">체감온도: {feelTemperature}℃</p>
+            <p className="text-sm">체감온도: {feelsLikeTemperature}℃</p>
             <br />
 
             <div className="flex flex-col gap-1">
@@ -194,7 +224,9 @@ function App() {
             </div>
           </div>
 
-          <div>{GetMicroDust()}</div>
+          <div>
+            <GetMicroDust address={address} />
+          </div>
 
           <div className="text-xs">
             <div className="text-sm">오늘 날씨</div>
