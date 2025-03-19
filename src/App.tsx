@@ -109,7 +109,6 @@ function App() {
             localStorage.getItem("location") as string
           );
 
-          // 현재 위치 정보 가져오기
           const position = await new Promise<GeolocationPosition>(
             (resolve, reject) => {
               navigator.geolocation.getCurrentPosition(resolve, reject);
@@ -126,6 +125,7 @@ function App() {
             storedLocation.longitude !== newLocation.longitude
           ) {
             localStorage.setItem("location", JSON.stringify(newLocation));
+            localStorage.removeItem("todayWeather") // 위치가 달라지면 오늘의 날씨를 구하는 곳도 달라지기 때문
             setLocation(newLocation);
           } else {
             setLocation(storedLocation);
