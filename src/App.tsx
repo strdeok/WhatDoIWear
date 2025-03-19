@@ -76,8 +76,6 @@ function App() {
           };
         }
         setLocation(currentLocation); // location 업데이트
-
-        // 2️⃣ 주소 변환 + XY 좌표 변환을 순차적으로 실행
       } catch (error) {
         console.error("위치 정보 가져오기 중 오류 발생:", error);
       }
@@ -92,7 +90,6 @@ function App() {
     const getAddressData = new Promise((resolve, reject) => {
       useGetAddress(location)
         .then((addressData) => {
-          console.log("가져온 주소 데이터:", addressData);
           resolve(addressData);
         })
         .catch((error) => {
@@ -109,17 +106,19 @@ function App() {
           depth_2: string;
           depth_3: string;
         };
+        console.log("주소", typedAddress);
         return useGetXY(typedAddress);
       })
       .then(
         (xy: { x: number; y: number }): Promise<[NowWeather, TodayWeather]> => {
-          console.log("xy 가져옴");
           if (active === "now") {
+            console.log("now", xy);
             return Promise.all([
               GetNowWeather(date, xy, editedTime) as Promise<NowWeather>,
               GetTodayWeather(date, xy) as Promise<TodayWeather>,
             ]);
           } else {
+            console.log("school", xy);
             return Promise.all([
               GetNowSchoolWeather(date, editedTime) as Promise<NowWeather>,
               GetTodaySchoolWeather(date) as Promise<TodayWeather>,
@@ -128,6 +127,7 @@ function App() {
         }
       )
       .then(([getNowWeather, getTodayWeather]) => {
+        console.log("지금날씨", getNowWeather);
         setNowWeather(getNowWeather);
         setTodayWeather(getTodayWeather);
 
@@ -149,7 +149,7 @@ function App() {
         return getTodayWeather;
       })
       .then((getTodayWeather) => {
-        console.log(getTodayWeather);
+        console.log("오늘날씨", getTodayWeather);
         return RecommendClothes(getTodayWeather);
       })
       .then((recommendClothes) => {
