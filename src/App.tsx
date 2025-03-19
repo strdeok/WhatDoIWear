@@ -125,7 +125,7 @@ function App() {
             storedLocation.longitude !== newLocation.longitude
           ) {
             localStorage.setItem("location", JSON.stringify(newLocation));
-            localStorage.removeItem("todayWeather") // 위치가 달라지면 오늘의 날씨를 구하는 곳도 달라지기 때문
+            localStorage.removeItem("todayWeather"); // 위치가 달라지면 오늘의 날씨를 구하는 곳도 달라지기 때문
             setLocation(newLocation);
           } else {
             setLocation(storedLocation);
@@ -171,11 +171,13 @@ function App() {
         }): Promise<[NowWeather, TodayWeather, string?]> => {
           if (active === "now") {
             if (!localStorage.getItem("todayWeather")) {
+              console.log("로컬에 데이터가 없음")
               return Promise.all([
                 GetNowWeather(date, xy, editedTime) as Promise<NowWeather>,
                 GetTodayWeather(date, xy) as Promise<TodayWeather>,
               ]);
             } else {
+              console.log("로컬에 데이터가 있음")
               return Promise.all([
                 GetNowWeather(date, xy, editedTime) as Promise<NowWeather>,
                 JSON.parse(localStorage.getItem("todayWeather") as string),
@@ -183,11 +185,13 @@ function App() {
             }
           } else {
             if (!localStorage.getItem("todaySchoolWeather")) {
+              console.log("로컬에 데이터가 없음");
               return Promise.all([
                 GetNowSchoolWeather(date, editedTime) as Promise<NowWeather>,
                 GetTodaySchoolWeather(date) as Promise<TodayWeather>,
               ]);
             } else {
+              console.log("로컬에 데이터가 있음")
               return Promise.all([
                 GetNowSchoolWeather(date, editedTime) as Promise<NowWeather>,
                 JSON.parse(
