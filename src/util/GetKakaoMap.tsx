@@ -25,7 +25,7 @@ export default function GetKakaoMap({
         location?.latitude,
         location?.longitude
       ),
-      level: 2,
+      level: 3,
     };
 
     // 마커가 표시될 위치입니다

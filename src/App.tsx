@@ -1,4 +1,4 @@
-import { useEffect,  useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "./zustand/state";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoWaterOutline } from "react-icons/io5";
@@ -21,9 +21,6 @@ import dayjs from "dayjs";
 function App() {
   const {
     address,
-    setAddress,
-    xy,
-    setXY,
     nowWeather,
     setNowWeather,
     date,
@@ -41,85 +38,128 @@ function App() {
     latitude: number;
     longitude: number;
   } | null>(null);
-
+  const [feelsLikeTemperature, setFeelsLikeTemperature] = useState(0);
   const [loading, setLoading] = useState(true);
-
-
 
   const school = "송도1동";
   const schoolLocation = { latitude: 37.376786, longitude: 126.634701 };
 
+  interface NowWeather {
+    temperature: string;
+    humidity: string;
+    wind: string;
+    rain: string;
+    rainType: string;
+  }
+
+  interface TodayWeather {
+    highestTemp: string;
+    lowestTemp: string;
+    todayWind: string;
+  }
+
   useEffect(() => {
-    if (active === "school") {
-      setLocation(schoolLocation);
-    } else {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
+    const fetchData = async () => {
+      try {
+        // 1️⃣ 위치 정보 가져오기
+        let currentLocation = schoolLocation;
+
+        if (active === "now") {
+          const position = await new Promise<GeolocationPosition>(
+            (resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject);
+            }
+          );
+          currentLocation = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-          });
-        },
-        (error) => console.error("위치 정보를 가져올 수 없습니다:", error)
-      );
-    }
-  }, [active]);
+          };
+        }
+        setLocation(currentLocation); // location 업데이트
+
+        // 2️⃣ 주소 변환 + XY 좌표 변환을 순차적으로 실행
+      } catch (error) {
+        console.error("위치 정보 가져오기 중 오류 발생:", error);
+      }
+    };
+
+    fetchData();
+  }, [active]); // 위치 정보만 업데이트됨
 
   useEffect(() => {
     if (!location) return;
-    setLoading(true);
 
-    const fetchData = async () => {
-      await Promise.all([
-        useGetAddress(location, setAddress),
-        useGetXY(address, setXY),
-      ]);
-    };
-    fetchData();
-  }, [location]);
+    const getAddressData = new Promise((resolve, reject) => {
+      useGetAddress(location)
+        .then((addressData) => {
+          console.log("가져온 주소 데이터:", addressData);
+          resolve(addressData);
+        })
+        .catch((error) => {
+          console.error("주소 데이터 가져오기 실패:", error);
+          reject(error);
+        });
+    });
 
-  useEffect(() => {
-    if (!xy || xy.x === 0 || xy.y === 0) return;
-    setLoading(true);
+    // 3️⃣ XY 좌표 변환 (주소 데이터를 받은 후 실행)
+    getAddressData
+      .then((address): Promise<{ x: number; y: number }> => {
+        const typedAddress = address as {
+          depth_1: string;
+          depth_2: string;
+          depth_3: string;
+        };
+        return useGetXY(typedAddress);
+      })
+      .then(
+        (xy: { x: number; y: number }): Promise<[NowWeather, TodayWeather]> => {
+          console.log("xy 가져옴");
+          if (active === "now") {
+            return Promise.all([
+              GetNowWeather(date, xy, editedTime) as Promise<NowWeather>,
+              GetTodayWeather(date, xy) as Promise<TodayWeather>,
+            ]);
+          } else {
+            return Promise.all([
+              GetNowSchoolWeather(date, editedTime) as Promise<NowWeather>,
+              GetTodaySchoolWeather(date) as Promise<TodayWeather>,
+            ]);
+          }
+        }
+      )
+      .then(([getNowWeather, getTodayWeather]) => {
+        setNowWeather(getNowWeather);
+        setTodayWeather(getTodayWeather);
 
-    const fetchWeather = async () => {
-      if (active === "now") {
-        await Promise.all([
-          GetNowWeather(date, xy, setNowWeather, editedTime),
-          GetTodayWeather(date, xy, setTodayWeather),
-        ]);
-      } else {
-        await Promise.all([
-          GetNowSchoolWeather(date, setNowWeather, editedTime),
-          GetTodaySchoolWeather(date, setTodayWeather),
-        ]);
-      }
-      setLoading(false);
-    };
-    fetchWeather();
-  }, [xy, active]);
-
-  useEffect(() => {
-    if (!todayWeather) return;
-    RecommendClothes(todayWeather, setClothes);
-  }, [todayWeather]);
-
-  const [feelTemperature, setFeelTemperature] = useState<number>();
-  useEffect(() => {
-    if (!nowWeather) return;
-    const month = Number(dayjs().format("MM"));
-    setFeelTemperature(
-      month <= 9 || month >= 5
-        ? CalculateSummerFeelTemperature(
-            nowWeather.temperature,
-            nowWeather.wind
-          )
-        : CalculateWinterFeelTemperature(
-            nowWeather.temperature,
-            nowWeather.humidity
-          )
-    );
-  }, [nowWeather]);
+        return [getNowWeather, getTodayWeather] as [NowWeather, TodayWeather];
+      })
+      .then(([getNowWeather, getTodayWeather]) => {
+        const month = Number(dayjs().format("MM"));
+        const feelsLike =
+          month <= 9 || month >= 5
+            ? CalculateSummerFeelTemperature(
+                getNowWeather.temperature,
+                getNowWeather.humidity
+              )
+            : CalculateWinterFeelTemperature(
+                getNowWeather.temperature,
+                getNowWeather.wind
+              );
+        setFeelsLikeTemperature(feelsLike);
+        return getTodayWeather;
+      })
+      .then((getTodayWeather) => {
+        console.log(getTodayWeather);
+        return RecommendClothes(getTodayWeather);
+      })
+      .then((recommendClothes) => {
+        console.log(recommendClothes);
+        setClothes(recommendClothes);
+      })
+      .then(() => {
+        setLoading(false);
+      });
+  }, [location, active]);
 
   return (
     <>
@@ -136,7 +176,7 @@ function App() {
             <p className="text-5xl">{nowWeather.temperature}℃</p>
             <br />
 
-            <p className="text-sm">체감온도: {feelTemperature}℃</p>
+            <p className="text-sm">체감온도: {feelsLikeTemperature}℃</p>
             <br />
 
             <div className="flex flex-col gap-1">
