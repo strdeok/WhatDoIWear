@@ -59,6 +59,21 @@ function App() {
     todayWind: string;
   }
 
+  useEffect(()=>{
+    console.log(`.           |
+　╲　　　　　　　　　　　╱
+　　　　　　　　　/
+　　　╲　　　　　　　　╱
+　　╲　　    설마...　　　╱
+-　-　　　제 목소리가　　-　-　-
+　　╱　   들리시나요?　　╲
+　╱　　/               .
+　　╱　　　　　　　　╲
+　　　　　/　|　　　
+　　　　　　　.`)
+    console.log("source code: https://github.com/strdeok/WhatDoIWear")
+  }, [])
+
   useEffect(() => {
     const fetchLocation = async () => {
       try {
