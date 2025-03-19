@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 function App() {
   const {
     address,
+    setAddress,
     nowWeather,
     setNowWeather,
     date,
@@ -61,12 +62,11 @@ function App() {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
-        // 1️⃣ 위치 정보 가져오기
-
         let currentLocation = schoolLocation;
 
-        if (!localStorage.getItem("location")) {
-          console.log("로컬스토리지에 값이 없음")
+        if (active === "school") {
+          setLocation(currentLocation);
+        } else if (!localStorage.getItem("location")) {
           const position = await new Promise<GeolocationPosition>(
             (resolve, reject) => {
               navigator.geolocation.getCurrentPosition(resolve, reject);
@@ -77,27 +77,40 @@ function App() {
             longitude: position.coords.longitude,
           };
           localStorage.setItem("location", JSON.stringify(currentLocation));
+
           setLocation(currentLocation);
         } else {
-          console.log("로컬스토리지에 값이 있음")
-          if (active === "now") {
-            const nowLocation = JSON.parse(
-              localStorage.getItem("location") as string
-            );
-            console.log(nowLocation)
-            setLocation(nowLocation);
+          const storedLocation = JSON.parse(
+            localStorage.getItem("location") as string
+          );
+
+          // 현재 위치 정보 가져오기
+          const position = await new Promise<GeolocationPosition>(
+            (resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject);
+            }
+          );
+
+          const newLocation = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+
+          if (
+            storedLocation.latitude !== newLocation.latitude ||
+            storedLocation.longitude !== newLocation.longitude
+          ) {
+            localStorage.setItem("location", JSON.stringify(newLocation));
+            setLocation(newLocation);
           } else {
-            console.log(schoolLocation)
-            setLocation(schoolLocation);
+            setLocation(storedLocation);
           }
-        } 
-      } catch (error) {
-        console.error("위치 정보 가져오기 중 오류 발생:", error);
-      }
+        }
+      } catch (error) {}
     };
 
     fetchLocation();
-  }, [active]); // 위치 정보만 업데이트됨
+  }, [active]);
 
   useEffect(() => {
     if (!location) return;
@@ -113,7 +126,6 @@ function App() {
         });
     });
 
-    // 3️⃣ XY 좌표 변환 (주소 데이터를 받은 후 실행)
     getAddressData
       .then((address): Promise<{ x: number; y: number }> => {
         const typedAddress = address as {
@@ -121,19 +133,18 @@ function App() {
           depth_2: string;
           depth_3: string;
         };
-        console.log("주소", typedAddress);
+
+        setAddress(typedAddress);
         return useGetXY(typedAddress);
       })
       .then(
         (xy: { x: number; y: number }): Promise<[NowWeather, TodayWeather]> => {
           if (active === "now") {
-            console.log("now", xy);
             return Promise.all([
               GetNowWeather(date, xy, editedTime) as Promise<NowWeather>,
               GetTodayWeather(date, xy) as Promise<TodayWeather>,
             ]);
           } else {
-            console.log("school", xy);
             return Promise.all([
               GetNowSchoolWeather(date, editedTime) as Promise<NowWeather>,
               GetTodaySchoolWeather(date) as Promise<TodayWeather>,
@@ -142,7 +153,6 @@ function App() {
         }
       )
       .then(([getNowWeather, getTodayWeather]) => {
-        console.log("지금날씨", getNowWeather);
         setNowWeather(getNowWeather);
         setTodayWeather(getTodayWeather);
 
@@ -164,11 +174,9 @@ function App() {
         return getTodayWeather;
       })
       .then((getTodayWeather) => {
-        console.log("오늘날씨", getTodayWeather);
         return RecommendClothes(getTodayWeather);
       })
       .then((recommendClothes) => {
-        console.log(recommendClothes);
         setClothes(recommendClothes);
       })
       .then(() => {
@@ -216,7 +224,9 @@ function App() {
             </div>
           </div>
 
-          <div>{GetMicroDust()}</div>
+          <div>
+            <GetMicroDust address={address} />
+          </div>
 
           <div className="text-xs">
             <div className="text-sm">오늘 날씨</div>

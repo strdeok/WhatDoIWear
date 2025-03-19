@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
-import { useStore } from "../zustand/state";
 import { WiDust } from "react-icons/wi";
 import { IoIosInformationCircleOutline, IoMdClose } from "react-icons/io";
 import { RiSurgicalMaskLine } from "react-icons/ri";
@@ -19,8 +18,11 @@ interface MicroDust {
   dubleMicroDustGrade: string | undefined;
 }
 
-export default function GetMicroDust() {
-  const { address }: any = useStore();
+export default function GetMicroDust({
+  address,
+}: {
+  address: { depth_3: string };
+}) {
   const [tmXY, setTmXY] = useState<TMXY>({
     tmX: 0,
     tmY: 0,
@@ -53,14 +55,14 @@ export default function GetMicroDust() {
       .get(
         `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt?serviceKey=${
           import.meta.env.VITE_PUBLIC_API_KEY
-        }&returnType=JSON&numOfRows=10&pageNo=1&umdName=${address.depth_3}`
+        }&returnType=JSON&numOfRows=100&pageNo=1&umdName=${address.depth_3}`
       )
       .then((res) => {
         console.log(res);
         if (!res.data.response) {
           console.log("센터 XY 가져오기" + res);
           console.log("할당량 소진");
-          return "서버오류"
+          return "서버오류";
         } else {
           const tmXY = {
             tmX: res.data.response.body.items[0].tmX,
@@ -85,7 +87,7 @@ export default function GetMicroDust() {
         setMeasureCenter(res.data.response.body.items[0].stationName);
       })
       .catch((err) => {
-        console.log(err);
+    
       });
   };
 
