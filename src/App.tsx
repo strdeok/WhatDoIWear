@@ -75,7 +75,7 @@ function App() {
             longitude: position.coords.longitude,
           };
         }
-        setLocation(currentLocation); // location 업데이트
+        setLocation(currentLocation); 
       } catch (error) {
         console.error("위치 정보 가져오기 중 오류 발생:", error);
       }
@@ -159,7 +159,7 @@ function App() {
       .then(() => {
         setLoading(false);
       });
-  }, [location, active]);
+  }, [location]);
 
   return (
     <>
