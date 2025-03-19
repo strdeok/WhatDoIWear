@@ -52,7 +52,6 @@ export default function GetMicroDust({
       }&returnType=JSON&numOfRows=100&pageNo=1&umdName=${address.depth_3}`
     );
 
-    console.log(res);
     if (!res.data.response) {
       return null;
     } else {
