@@ -159,13 +159,11 @@ function App() {
         }): Promise<[NowWeather, TodayWeather, string?]> => {
           if (active === "now") {
             if (!sessionStorage.getItem("todayWeather")) {
-              console.log("로컬에 데이터가 없음");
               return Promise.all([
                 GetNowWeather(date, xy, editedTime) as Promise<NowWeather>,
                 GetTodayWeather(date, xy) as Promise<TodayWeather>,
               ]);
             } else {
-              console.log("로컬에 데이터가 있음");
               return Promise.all([
                 GetNowWeather(date, xy, editedTime) as Promise<NowWeather>,
                 JSON.parse(sessionStorage.getItem("todayWeather") as string),
@@ -173,13 +171,11 @@ function App() {
             }
           } else {
             if (!sessionStorage.getItem("todaySchoolWeather")) {
-              console.log("로컬에 데이터가 없음");
               return Promise.all([
                 GetNowSchoolWeather(date, editedTime) as Promise<NowWeather>,
                 GetTodaySchoolWeather(date) as Promise<TodayWeather>,
               ]);
             } else {
-              console.log("로컬에 데이터가 있음");
               return Promise.all([
                 GetNowSchoolWeather(date, editedTime) as Promise<NowWeather>,
                 JSON.parse(
@@ -210,9 +206,6 @@ function App() {
         setNowWeather(getNowWeather);
         setTodayWeather(getTodayWeather);
 
-        return [getNowWeather, getTodayWeather] as [NowWeather, TodayWeather];
-      })
-      .then(([getNowWeather, getTodayWeather]) => {
         const month = Number(dayjs().format("MM"));
         const feelsLike =
           month <= 9 || month >= 5
@@ -224,14 +217,14 @@ function App() {
                 getNowWeather.temperature,
                 getNowWeather.wind
               );
+
         setFeelsLikeTemperature(feelsLike);
-        return getTodayWeather;
-      })
-      .then((getTodayWeather) => {
+
         return RecommendClothes(getTodayWeather);
       })
-      .then((recommendClothes) => {
-        setClothes(recommendClothes);
+      .then(async (recommendedClothes) => {
+        const clothes = await recommendedClothes;
+        setClothes(clothes);
       })
       .then(() => {
         setLoading(false);
