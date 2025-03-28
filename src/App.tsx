@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "./zustand/state";
 import { IoIosInformationCircleOutline } from "@react-icons/all-files/io/IoIosInformationCircleOutline";
 import Loading from "./components/Loading";
@@ -21,7 +21,7 @@ function App() {
     longitude: number;
   } | null>(null);
 
-  // const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const school = "송도1동";
   const schoolLocation = { latitude: 37.376786, longitude: 126.634701 };
@@ -42,6 +42,7 @@ function App() {
   }, []);
 
   useEffect(() => {
+    setLoading(true);
     const fetchLocation = async () => {
       try {
         let currentLocation = schoolLocation;
@@ -125,11 +126,12 @@ function App() {
   }, [location]);
 
   return (
-    <Suspense fallback={<Loading />}>
+    <>
+      {loading && <Loading />}
       <div className="relative w-full h-full pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-x-hidden min-h-[45rem]">
         <main
           className="relative flex flex-col w-full max-w-xs items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl mt-10 
-        "
+      "
         >
           <GetKakaoMap location={location} />
           <div>
@@ -138,7 +140,7 @@ function App() {
           </div>
 
           <div>
-            <GetMicroDust address={address} />
+            <GetMicroDust address={address} setLoading={setLoading} />
           </div>
 
           <TodayWeather />
@@ -168,7 +170,7 @@ function App() {
             onClick={() => {
               if (active === "school") {
                 setActive("now");
-                // setLoading(true);
+                setLoading(true);
               }
             }}
           >
@@ -182,7 +184,7 @@ function App() {
             onClick={() => {
               if (active === "now") {
                 setActive("school");
-                // setLoading(true);
+                setLoading(true);
               }
             }}
           >
@@ -197,7 +199,7 @@ function App() {
           </a>
         </footer>
       </div>
-    </Suspense>
+    </>
   );
 }
 

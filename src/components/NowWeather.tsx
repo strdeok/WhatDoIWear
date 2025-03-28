@@ -67,7 +67,7 @@ export default function NowWeather() {
       <p className="text-sm">체감온도: {feelsLikeTemperature}℃</p>
       <br />
 
-      <table className="flex flex-col gap-1">
+      <table className="flex flex-col gap-1 w-20">
         <td className="flex items-center justify-between">
           <WiHumidity className="text-xl" />  
           {nowWeather.humidity}%
