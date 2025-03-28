@@ -4,6 +4,7 @@ export default function CalculateSummerFeelTemperature(
 ): number {
   const changedTemp = Number(temp);
   const changedHumidity = Number(humidity);
+
   return Math.round(
     -8.7847 +
       1.6114 * changedTemp +

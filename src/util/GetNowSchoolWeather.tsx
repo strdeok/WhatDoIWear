@@ -1,7 +1,7 @@
 import axios from "axios";
-import { FiCloudSnow } from "react-icons/fi";
-import { IoRainyOutline } from "react-icons/io5";
-import { WiRainMix } from "react-icons/wi";
+import { FiCloudSnow } from "@react-icons/all-files/fi/FiCloudSnow";
+import { IoRainyOutline } from "@react-icons/all-files/io5/IoRainyOutline";
+import { WiRainMix } from "@react-icons/all-files/wi/WiRainMix";
 
 interface ApiForm {
   category: string;
@@ -14,7 +14,7 @@ export default async function GetNowSchoolWeather(
   const translateRainType = (rainType: string) => {
     switch (rainType) {
       case "0":
-        return "강수없음";
+        return "";
       case "1":
         return <IoRainyOutline className="text-2xl" />;
       case "2 ":

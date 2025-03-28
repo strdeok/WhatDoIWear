@@ -6,6 +6,9 @@ export const useStore = create((set, get) => ({
   hour: Number(dayjs().format("HH")),
   minute: Number(dayjs().format("mm")),
 
+  active: "now",
+  setActive: (newActive: string) => set(() => ({ active: newActive })),
+
   address: { depth_1: null, depth_2: null, depth_3: null },
   setAddress: (newAddress: {
     depth_1: string;
@@ -26,39 +29,6 @@ export const useStore = create((set, get) => ({
 
   setKakaoXY: (newKakaoXY: { x: number; y: number }) =>
     set(() => ({ kakaoXY: { ...newKakaoXY } })),
-
-  nowWeather: {
-    temperature: null,
-    humidity: null,
-    wind: null,
-  },
-  setNowWeather: (newNowWeather: {
-    temperature: string;
-    humidity: string;
-    wind: string;
-  }) => set(() => ({ nowWeather: { ...newNowWeather } })),
-
-  todayWeather: {
-    highestTemp: null,
-    lowestTemp: null,
-    todayWind: null,
-    rain: null,
-    rainType: null,
-  },
-  setTodayWeather: (newTodayWeather: {
-    highestTemp: string;
-    lowestTemp: string;
-    todayWind: string;
-    rain: string;
-    rainType: string;
-  }) =>
-    set(() => ({
-      todayWeather: { ...newTodayWeather },
-    })),
-
-  clothes: [],
-  setClothes: (newClothes: string[]) =>
-    set(() => ({ clothes: [...newClothes] })),
 
   editedTime: () => {
     const { hour, minute }: any = get();
@@ -81,5 +51,11 @@ export const useStore = create((set, get) => ({
   setTmXY: (newTmXY: { tmX: string; tmY: string }) =>
     set(() => ({
       tmXY: { ...newTmXY },
+    })),
+
+  highestTemp: 0,
+  setHighestTemp: (newHighestTemp: string) =>
+    set(() => ({
+      highestTemp: newHighestTemp,
     })),
 }));

@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { IoMdClose } from "react-icons/io";
+import { IoMdClose } from "@react-icons/all-files/io/IoMdClose";
 
 interface ModalProps {
   setActiveModal: Dispatch<SetStateAction<boolean>>; // setActiveModal의 타입을 명시
