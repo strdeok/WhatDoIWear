@@ -21,7 +21,7 @@ function App() {
     longitude: number;
   } | null>(null);
 
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   const school = "송도1동";
   const schoolLocation = { latitude: 37.376786, longitude: 126.634701 };
@@ -168,7 +168,7 @@ function App() {
             onClick={() => {
               if (active === "school") {
                 setActive("now");
-                setLoading(true);
+                // setLoading(true);
               }
             }}
           >
@@ -182,7 +182,7 @@ function App() {
             onClick={() => {
               if (active === "now") {
                 setActive("school");
-                setLoading(true);
+                // setLoading(true);
               }
             }}
           >
