@@ -12,7 +12,7 @@ import TodayWeather from "./components/TodayWeather";
 import RecommendedClothes from "./components/RecommendClothes";
 
 function App() {
-  const { setXY, address, setAddress, active }: any = useStore(); // zustand 변수
+  const { setXY, address, setAddress }: any = useStore(); // zustand 변수
 
   // react 훅
   const [activeModal, setActiveModal] = useState(false);
@@ -50,54 +50,22 @@ function App() {
         // if (active === "school") {
         //   setLocation(currentLocation);
         // } else
-        if (!sessionStorage.getItem("location")) {
-          const position = await new Promise<GeolocationPosition>(
-            (resolve, reject) => {
-              navigator.geolocation.getCurrentPosition(resolve, reject);
-            }
-          );
-          //   currentLocation = {
-          //     latitude: position.coords.latitude,
-          //     longitude: position.coords.longitude,
-          //   };
-          // sessionStorage.setItem("location", JSON.stringify(currentLocation));
 
-          setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        } else {
-          const storedLocation = JSON.parse(
-            sessionStorage.getItem("location") as string
-          );
-
-          const position = await new Promise<GeolocationPosition>(
-            (resolve, reject) => {
-              navigator.geolocation.getCurrentPosition(resolve, reject);
-            }
-          );
-
-          const newLocation = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          };
-
-          if (
-            storedLocation.latitude !== newLocation.latitude ||
-            storedLocation.longitude !== newLocation.longitude
-          ) {
-            sessionStorage.setItem("location", JSON.stringify(newLocation));
-            sessionStorage.removeItem("todayWeather"); // 위치가 달라지면 오늘의 날씨를 구하는 곳도 달라지기 때문
-            setLocation(newLocation);
-          } else {
-            setLocation(storedLocation);
+        const position = await new Promise<GeolocationPosition>(
+          (resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
           }
-        }
+        );
+
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
       } catch (error) {}
     };
 
     fetchLocation();
-  }, [active]);
+  }, []);
 
   useEffect(() => {
     if (!location) return;
@@ -165,36 +133,6 @@ function App() {
             <RecommendedClothes />
           </div>
         </main>
-
-        {/* <div className="max-w-xs mt-14 w-full flex flex-row gap-3 justify-between">
-          <button
-            className={`border rounded-lg p-2 shadow-md w-1/2 ${
-              active == "now" ? "bg-[#1a81a9] border-none" : "border-white"
-            }`}
-            onClick={() => {
-              if (active === "school") {
-                setActive("now");
-                setLoading(true);
-              }
-            }}
-          >
-            현재 지역 날씨
-          </button>
-
-          <button
-            className={`border rounded-lg p-2 shadow-md w-1/2 ${
-              active != "now" ? "bg-[#1a81a9] border-none" : "border-white"
-            }`}
-            onClick={() => {
-              if (active === "now") {
-                setActive("school");
-                setLoading(true);
-              }
-            }}
-          >
-            현재 학교 날씨
-          </button>
-        </div> */}
 
         <footer className="text-xs text-blue-300 mt-8">
           <p>출처: 기상청 | 한국환경공단 | 카카오 API</p>
