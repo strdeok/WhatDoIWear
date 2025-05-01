@@ -3,7 +3,6 @@ import { useStore } from "../zustand/state";
 import { WiHumidity } from "@react-icons/all-files/wi/WiHumidity";
 import { WiStrongWind } from "@react-icons/all-files/wi/WiStrongWind";
 import GetNowWeather from "../util/GetNowWeather";
-import GetNowSchoolWeather from "../util/GetNowSchoolWeather";
 import dayjs from "dayjs";
 import CalculateSummerFeelTemperature from "../util/CalculateSummerFeelTemperature";
 import CalculateWinterFeelTemperature from "../util/CalculateWinterFeelTemperature";
@@ -31,10 +30,11 @@ export default function NowWeather() {
     const fetchWeather = async () => {
       if (xy.x === null && xy.y === null) return;
 
-      const nowWeatherData =
-        active === "now"
-          ? ((await GetNowWeather(date, xy, editedTime)) as NowWeather)
-          : ((await GetNowSchoolWeather(date, editedTime)) as NowWeather);
+      const nowWeatherData = (await GetNowWeather(
+        date,
+        xy,
+        editedTime
+      )) as NowWeather;
 
       setNowWeather(nowWeatherData);
     };
@@ -69,7 +69,7 @@ export default function NowWeather() {
 
       <table className="flex flex-col gap-1 w-20">
         <td className="flex items-center justify-between">
-          <WiHumidity className="text-xl" />  
+          <WiHumidity className="text-xl" />
           {nowWeather.humidity}%
         </td>
         <td className="flex items-center justify-between">

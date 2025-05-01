@@ -66,7 +66,6 @@ export default async function GetNowWeather(
       rain,
       rainType,
     };
-    console.log(nowWeather)
     return nowWeather
   } catch (error) {
     return error;

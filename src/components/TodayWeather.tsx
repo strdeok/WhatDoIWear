@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useStore } from "../zustand/state";
 import GetTodayWeather from "../util/GetTodayWeather";
-import GetTodaySchoolWeather from "../util/GetTodaySchoolWeather";
 
 interface TodayWeather {
   highestTemp: string;
@@ -21,13 +20,10 @@ export default function TodayWeather() {
     const fetchWeather = async () => {
       if (xy.x === null && xy.y === null) return;
 
-      const nowWeatherData =
-        active === "now"
-          ? ((await GetTodayWeather(date, xy)) as TodayWeather)
-          : ((await GetTodaySchoolWeather(date)) as TodayWeather);
+      const nowWeatherData = (await GetTodayWeather(date, xy)) as TodayWeather;
 
       setTodayWeather(nowWeatherData);
-      setHighestTemp(nowWeatherData.highestTemp)
+      setHighestTemp(nowWeatherData.highestTemp);
     };
 
     fetchWeather();

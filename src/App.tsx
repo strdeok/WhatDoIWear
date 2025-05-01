@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useStore } from "./zustand/state";
 import { IoIosInformationCircleOutline } from "@react-icons/all-files/io/IoIosInformationCircleOutline";
 import Loading from "./components/Loading";
@@ -7,9 +7,6 @@ import useGetAddress from "./util/GetAddress";
 import useGetXY from "./util/GetXY";
 import GetMicroDust from "./components/GetMicroDust";
 import GetKakaoMap from "./util/GetKakaoMap";
-import NowWeather from "./components/NowWeather";
-import TodayWeather from "./components/TodayWeather";
-import RecommendedClothes from "./components/RecommendClothes";
 
 function App() {
   const { setXY, address, setAddress }: any = useStore(); // zustand 변수
@@ -21,10 +18,11 @@ function App() {
     longitude: number;
   } | null>(null);
 
-  const [loading, setLoading] = useState(false);
-
-  // const school = "송도1동";
-  // const schoolLocation = { latitude: 37.376786, longitude: 126.634701 };
+  const NowWeather = lazy(() => import("./components/NowWeather"));
+  const TodayWeather = lazy(() => import("./components/TodayWeather"));
+  const RecommendedClothes = lazy(
+    () => import("./components/RecommendClothes")
+  );
 
   useEffect(() => {
     console.log(`.           |
@@ -42,15 +40,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    setLoading(true);
     const fetchLocation = async () => {
       try {
-        // let currentLocation = schoolLocation;
-
-        // if (active === "school") {
-        //   setLocation(currentLocation);
-        // } else
-
         const position = await new Promise<GeolocationPosition>(
           (resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject);
@@ -98,8 +89,7 @@ function App() {
   }, [location]);
 
   return (
-    <>
-      {loading && <Loading />}
+    <Suspense fallback={<Loading />}>
       <div className="relative w-full h-full pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-x-hidden min-h-[45rem]">
         <main
           className="relative flex flex-col w-full max-w-xs items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl mt-10 
@@ -112,7 +102,7 @@ function App() {
           </div>
 
           <div>
-            <GetMicroDust address={address} setLoading={setLoading} />
+            <GetMicroDust address={address} />
           </div>
 
           <TodayWeather />
@@ -141,7 +131,7 @@ function App() {
           </a>
         </footer>
       </div>
-    </>
+    </Suspense>
   );
 }
 

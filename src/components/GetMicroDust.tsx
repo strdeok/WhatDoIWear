@@ -21,10 +21,8 @@ interface MicroDust {
 
 export default function GetMicroDust({
   address,
-  setLoading,
 }: {
   address: { depth_3: string };
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [microDust, setMicroDust] = useState<MicroDust>({
     presentTime: "",
@@ -110,14 +108,11 @@ export default function GetMicroDust({
       .then((tmXY): Promise<string> => {
         if (tmXY === undefined) {
           setMicroDust({ ...microDust, microDust: "" });
-          setLoading(false);
         }
         return getMesureCenterName(tmXY as TMXY);
       })
       .then((measureCenterName) => {
         getMicroDust(measureCenterName);
-        console.log(measureCenterName);
-        setLoading(false);
       });
   }, [address]);
 
