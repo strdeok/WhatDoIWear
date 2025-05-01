@@ -12,7 +12,7 @@ import TodayWeather from "./components/TodayWeather";
 import RecommendedClothes from "./components/RecommendClothes";
 
 function App() {
-  const { setXY, address, setAddress, active, setActive }: any = useStore(); // zustand 변수
+  const { setXY, address, setAddress, active }: any = useStore(); // zustand 변수
 
   // react 훅
   const [activeModal, setActiveModal] = useState(false);
