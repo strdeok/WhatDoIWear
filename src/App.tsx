@@ -8,6 +8,10 @@ import useGetXY from "./util/GetXY";
 import GetMicroDust from "./components/GetMicroDust";
 import GetKakaoMap from "./util/GetKakaoMap";
 
+const NowWeather = lazy(() => import("./components/NowWeather"));
+const TodayWeather = lazy(() => import("./components/TodayWeather"));
+const RecommendedClothes = lazy(() => import("./components/RecommendClothes"));
+
 function App() {
   const { setXY, address, setAddress }: any = useStore(); // zustand 변수
 
@@ -17,12 +21,6 @@ function App() {
     latitude: number;
     longitude: number;
   } | null>(null);
-
-  const NowWeather = lazy(() => import("./components/NowWeather"));
-  const TodayWeather = lazy(() => import("./components/TodayWeather"));
-  const RecommendedClothes = lazy(
-    () => import("./components/RecommendClothes")
-  );
 
   useEffect(() => {
     console.log(`.           |
