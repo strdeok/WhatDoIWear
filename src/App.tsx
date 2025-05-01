@@ -23,8 +23,8 @@ function App() {
 
   const [loading, setLoading] = useState(false);
 
-  const school = "송도1동";
-  const schoolLocation = { latitude: 37.376786, longitude: 126.634701 };
+  // const school = "송도1동";
+  // const schoolLocation = { latitude: 37.376786, longitude: 126.634701 };
 
   useEffect(() => {
     console.log(`.           |
@@ -45,23 +45,27 @@ function App() {
     setLoading(true);
     const fetchLocation = async () => {
       try {
-        let currentLocation = schoolLocation;
+        // let currentLocation = schoolLocation;
 
-        if (active === "school") {
-          setLocation(currentLocation);
-        } else if (!sessionStorage.getItem("location")) {
+        // if (active === "school") {
+        //   setLocation(currentLocation);
+        // } else
+        if (!sessionStorage.getItem("location")) {
           const position = await new Promise<GeolocationPosition>(
             (resolve, reject) => {
               navigator.geolocation.getCurrentPosition(resolve, reject);
             }
           );
-          currentLocation = {
+          //   currentLocation = {
+          //     latitude: position.coords.latitude,
+          //     longitude: position.coords.longitude,
+          //   };
+          // sessionStorage.setItem("location", JSON.stringify(currentLocation));
+
+          setLocation({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-          };
-          sessionStorage.setItem("location", JSON.stringify(currentLocation));
-
-          setLocation(currentLocation);
+          });
         } else {
           const storedLocation = JSON.parse(
             sessionStorage.getItem("location") as string
@@ -135,7 +139,7 @@ function App() {
         >
           <GetKakaoMap location={location} />
           <div>
-            <div>{active === "now" ? address.depth_3 : school}</div>
+            <div>{address.depth_3}</div>
             <NowWeather />
           </div>
 
@@ -162,7 +166,7 @@ function App() {
           </div>
         </main>
 
-        <div className="max-w-xs mt-14 w-full flex flex-row gap-3 justify-between">
+        {/* <div className="max-w-xs mt-14 w-full flex flex-row gap-3 justify-between">
           <button
             className={`border rounded-lg p-2 shadow-md w-1/2 ${
               active == "now" ? "bg-[#1a81a9] border-none" : "border-white"
@@ -190,7 +194,7 @@ function App() {
           >
             현재 학교 날씨
           </button>
-        </div>
+        </div> */}
 
         <footer className="text-xs text-blue-300 mt-8">
           <p>출처: 기상청 | 한국환경공단 | 카카오 API</p>
