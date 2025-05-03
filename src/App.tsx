@@ -13,14 +13,11 @@ const TodayWeather = lazy(() => import("./components/TodayWeather"));
 const RecommendedClothes = lazy(() => import("./components/RecommendClothes"));
 
 function App() {
-  const { setXY, address, setAddress }: any = useStore(); // zustand 변수
+  const { location, setXY, address, setAddress, fetchLocation }: any =
+    useStore(); // zustand 변수
 
   // react 훅
   const [activeModal, setActiveModal] = useState(false);
-  const [location, setLocation] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
 
   useEffect(() => {
     console.log(`.           |
@@ -38,21 +35,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const fetchLocation = async () => {
-      try {
-        const position = await new Promise<GeolocationPosition>(
-          (resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject);
-          }
-        );
-
-        setLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-      } catch (error) {}
-    };
-
     fetchLocation();
   }, []);
 
@@ -86,50 +68,52 @@ function App() {
       });
   }, [location]);
 
+  if (!location || !address) {
+    return <Loading />;
+  }
+
   return (
-    <Suspense fallback={<Loading />}>
-      <div className="relative w-full h-full pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-x-hidden min-h-[45rem]">
-        <main
-          className="relative flex flex-col w-full max-w-xs items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl mt-10 
+    <div className="relative w-full h-full pb-16 flex flex-col items-center justify-center text-center text-white  bg-gradient-to-b from-[#62c1e5] to-[#20a7db] overflow-x-hidden min-h-[45rem]">
+      <main
+        className="relative flex flex-col w-full max-w-xs items-center justify-center gap-8 border-2 p-10 rounded-xl shadow-2xl mt-10 
       "
-        >
-          <GetKakaoMap location={location} />
-          <div>
-            <div>{address.depth_3}</div>
-            <NowWeather />
-          </div>
+      >
+        <GetKakaoMap location={location} />
+        <div>
+          <div>{address.depth_3}</div>
+          <NowWeather />
+        </div>
 
-          <div>
-            <GetMicroDust address={address} />
-          </div>
+        <div>
+          <GetMicroDust address={address} />
+        </div>
 
-          <TodayWeather />
+        <TodayWeather />
 
-          <div>
-            <div className="flex flex-row items-center">
-              <div className="text-xl mr-2">추천 옷차림</div>
-              <div
-                onClick={() => {
-                  setActiveModal(true);
-                }}
-              >
-                <IoIosInformationCircleOutline />
-              </div>
+        <div>
+          <div className="flex flex-row items-center">
+            <div className="text-xl mr-2">추천 옷차림</div>
+            <div
+              onClick={() => {
+                setActiveModal(true);
+              }}
+            >
+              <IoIosInformationCircleOutline />
             </div>
-            {activeModal ? <Modal setActiveModal={setActiveModal} /> : null}
-
-            <RecommendedClothes />
           </div>
-        </main>
+          {activeModal ? <Modal setActiveModal={setActiveModal} /> : null}
 
-        <footer className="text-xs text-blue-300 mt-8">
-          <p>출처: 기상청 | 한국환경공단 | 카카오 API</p>
-          <a href="https://open.kakao.com/o/sEt8gDlh">
-            문의: https://open.kakao.com/o/sEt8gDlh
-          </a>
-        </footer>
-      </div>
-    </Suspense>
+          <RecommendedClothes />
+        </div>
+      </main>
+
+      <footer className="text-xs text-blue-300 mt-8">
+        <p>출처: 기상청 | 한국환경공단 | 카카오 API</p>
+        <a href="https://open.kakao.com/o/sEt8gDlh">
+          문의: https://open.kakao.com/o/sEt8gDlh
+        </a>
+      </footer>
+    </div>
   );
 }
 
