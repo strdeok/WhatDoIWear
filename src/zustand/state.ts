@@ -6,7 +6,7 @@ export const useStore = create((set, get) => ({
   hour: Number(dayjs().format("HH")),
   minute: Number(dayjs().format("mm")),
 
-  active: "now",
+  location: null,
   setActive: (newActive: string) => set(() => ({ active: newActive })),
 
   address: { depth_1: null, depth_2: null, depth_3: null },
@@ -21,6 +21,23 @@ export const useStore = create((set, get) => ({
     y: null,
   },
   setXY: (newXY: { x: number; y: number }) => set(() => ({ xy: { ...newXY } })),
+
+  fetchLocation: async () => {
+    try {
+      const position = await new Promise<GeolocationPosition>(
+        (resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        }
+      );
+
+      const location = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      };
+
+      set({ location });
+    } catch (error) {}
+  },
 
   kakaoXY: {
     x: null,
